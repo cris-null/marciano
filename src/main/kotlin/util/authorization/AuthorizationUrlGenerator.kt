@@ -61,8 +61,7 @@ object AuthorizationUrlGenerator {
      * ones you finish. (You may also use this value to, for example, tell your webserver what action
      * to take after receiving the OAuth2 bearer token)
      */
-    fun getAuthorizationUrl(duration: String = DURATION, scope: String = SCOPE): String {
-        val state = RandomStringGenerator.getRandomString()
+    fun getAuthorizationUrl(state: String, duration: String = DURATION, scope: String = SCOPE): String {
 
         return "https://www.reddit.com/api/v1/authorize?client_id=$CLIENT_ID&response_type=$RESPONSE_TYPE" +
                 "&state=$state&redirect_uri=$REDIRECT_URI&duration=$duration&scope=$scope"
