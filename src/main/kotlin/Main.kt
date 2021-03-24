@@ -1,3 +1,5 @@
+import util.getAuthorizationUrl
+
 fun main() {
-    println("Hello World!")
+    println(getAuthorizationUrl())
 }
