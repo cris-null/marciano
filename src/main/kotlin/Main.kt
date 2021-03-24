@@ -1,5 +1,5 @@
-import util.authorization.getAuthorizationUrl
+import util.authorization.AuthorizationUrlGenerator
 
 fun main() {
-    println(getAuthorizationUrl())
+    println(AuthorizationUrlGenerator.getAuthorizationUrl())
 }
