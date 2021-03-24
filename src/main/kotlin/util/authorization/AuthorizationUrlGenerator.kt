@@ -1,6 +1,6 @@
 package util.authorization
 
-import util.getRandomString
+import util.string.getRandomString
 
 /**
  * The Client ID generated during app registration.

@@ -1,4 +1,4 @@
-package util
+package util.string
 
 fun getRandomString(length: Int): String {
     val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
