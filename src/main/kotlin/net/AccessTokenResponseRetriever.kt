@@ -8,10 +8,21 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
 
-object AccessTokenRetriever {
+object AccessTokenResponseRetriever {
 
     // To retrieve the access token, Reddit requires a POST request to be made to this URL
     private const val OAUTH_TOKEN_URL = "https://www.reddit.com/api/v1/access_token"
+
+    /**
+     * @param secret The client secret given by Reddit after you register your app.
+     * @param code The code retrieved from the redirect URI after a successful authorization.
+     * @return A String representing a JSON response with the access token, among other things.
+     */
+    fun getAccessTokenResponse(secret: String, code: String): String {
+        val postConnection = setupPostConnection(secret)
+        makePostRequest(postConnection, code)
+        return getRequestResponse(postConnection)
+    }
 
     /**
      * I don't understand very well how this works, but I tried using an online API testing tool
@@ -21,13 +32,16 @@ object AccessTokenRetriever {
      * one of them being "Basic Auth" that accepts a username and a password. It seems that this is
      * the one Reddit uses, as they use those terms "username" and "password" when describing
      * how to send the client ID and the app secret.
+     *
+     * This functions uses what I've learned to setup a connection anticipating a POST request to Reddit.
+     *
      * @param secret The client secret given by Reddit after you register your app.
-     * @param code The code retrieved from the redirect URI after a successful authorization.
+     * @return A [HttpURLConnection] which the correct "headers" (I think that's what those are)
      */
-    fun getAuthToken(secret: String, code: String) {
+    private fun setupPostConnection(secret: String): HttpURLConnection {
         val url = URL(OAUTH_TOKEN_URL)
-        val con = url.openConnection() as HttpURLConnection
-        con.requestMethod = "POST"
+        val postConnection = url.openConnection() as HttpURLConnection
+        postConnection.requestMethod = "POST"
 
         val user = RegisteredAppInformation.CLIENT_ID
         val userCredentials = "$user:$secret"
@@ -37,16 +51,22 @@ object AccessTokenRetriever {
         val authorizationValue = "Basic " + String(Base64.getEncoder().encode(userCredentials.toByteArray()))
 
         // It seems that the only header required by Reddit is "Authorization".
-        con.setRequestProperty("Authorization", authorizationValue)
+        postConnection.setRequestProperty("Authorization", authorizationValue)
         // In the 'Error" section the say to make sure the content type of the HTTP message is set to this.
-        con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+        postConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
         // This is not needed I think but just to be sure I put it in. I'm not sure what exactly I should write here.
-        con.setRequestProperty("User-Agent", "Kotlin test script")
+        postConnection.setRequestProperty("User-Agent", "Kotlin test script")
 
+        return postConnection
+    }
 
-        // Send post request
-        con.doOutput = true
-        val dataOutputStream = DataOutputStream(con.outputStream)
+    /**
+     * Makes a POST request using the required parameter in the body of the request. These
+     * parameters are dictated by Reddit.
+     */
+    private fun makePostRequest(postConnection: HttpURLConnection, code: String) {
+        postConnection.doOutput = true
+        val dataOutputStream = DataOutputStream(postConnection.outputStream)
         // Reddit requires these parameters in the POST data (not as part of the URL)
         // Reference: https://github.com/reddit-archive/reddit/wiki/OAuth2#retrieving-the-access-token
         val urlParameters =
@@ -54,14 +74,22 @@ object AccessTokenRetriever {
         dataOutputStream.writeBytes(urlParameters)
         dataOutputStream.flush()
         dataOutputStream.close()
-        val responseCode = con.responseCode
+        val responseCode = postConnection.responseCode
         println("\nSending POST request...")
         println("Response code = $responseCode")
+    }
 
-        // Print the response from the request to the console
+    /**
+     * After a successful POST request, Reddit will return a JSON response that looks like this:
+     *
+     * {"access_token": "480452782549-CTxdOKN5YsoDSNYsGvqkouqhhVlZJw", "token_type": "bearer", "expires_in": 3600, "refresh_token": "480452782549-gk0HFm11OBIcB4mtaDDAtMgtGAaifg", "scope": "history identity"}
+     *
+     * @return A String representing a JSON response with the access token, among other things.
+     */
+    private fun getRequestResponse(postConnection: HttpURLConnection): String {
         var content: StringBuilder
         BufferedReader(
-            InputStreamReader(con.inputStream)
+            InputStreamReader(postConnection.inputStream)
         ).use { br ->
             var line: String?
             content = StringBuilder()
@@ -70,6 +98,6 @@ object AccessTokenRetriever {
                 content.append(System.lineSeparator())
             }
         }
-        println(content.toString())
+        return content.toString()
     }
 }
