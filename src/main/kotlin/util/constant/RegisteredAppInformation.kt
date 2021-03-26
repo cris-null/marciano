@@ -34,7 +34,7 @@ object RegisteredAppInformation {
      * choose permanent if you will be performing ongoing tasks for the user, such as notifying them whenever
      * they receive a private message. The implicit grant flow does not allow permanent tokens.
      */
-    const val DURATION = "temporary"
+    const val DURATION = "permanent"
 
     /**
      * A space-separated* list of scope strings (commas are supported too).
