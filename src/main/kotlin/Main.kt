@@ -1,10 +1,14 @@
-import net.AccessTokenRetriever
+import net.AccessTokenResponseRetriever
 import util.authorization.AuthorizationUrlGenerator
 import util.string.RandomStringGenerator
 import util.string.RedirectUriParser
 import util.string.RedirectUriResult
 
 fun main() {
+    testGetAccessToken()
+}
+
+fun testGetAccessToken() {
     val state = RandomStringGenerator.getRandomString()
     println(AuthorizationUrlGenerator.getAuthorizationUrl(state))
 
@@ -29,6 +33,6 @@ fun main() {
 
         println("Enter you app's secret:")
         val secret = readLine()
-        AccessTokenRetriever.getAuthToken(secret!!, code)
+        println(AccessTokenResponseRetriever.getAccessTokenResponse(secret!!, code))
     }
 }
