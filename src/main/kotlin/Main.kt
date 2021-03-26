@@ -1,12 +1,13 @@
 import net.AccessTokenResponseRetriever
 import net.TokenResponseParser
 import authorization.AuthorizationUrlGenerator
+import file.FileTokenManager
 import string.RandomStringGenerator
 import net.RedirectUriParser
 import net.RedirectUriResult
 
 fun main() {
-    testGetAccessToken()
+
 }
 
 fun testGetAccessToken() {
