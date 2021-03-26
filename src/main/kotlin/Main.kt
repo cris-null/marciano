@@ -1,4 +1,5 @@
 import net.AccessTokenResponseRetriever
+import net.TokenResponseParser
 import util.authorization.AuthorizationUrlGenerator
 import util.string.RandomStringGenerator
 import util.string.RedirectUriParser
@@ -33,6 +34,8 @@ fun testGetAccessToken() {
 
         println("Enter you app's secret:")
         val secret = readLine()
-        println(AccessTokenResponseRetriever.getAccessTokenResponse(secret!!, code))
+        val responseJson = AccessTokenResponseRetriever.getAccessTokenResponse(secret!!, code)
+        val responseObject = TokenResponseParser.parse(responseJson)
+        println(responseObject)
     }
 }
