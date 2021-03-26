@@ -1,9 +1,9 @@
 import net.AccessTokenResponseRetriever
 import net.TokenResponseParser
-import util.authorization.AuthorizationUrlGenerator
-import util.string.RandomStringGenerator
-import util.string.RedirectUriParser
-import util.string.RedirectUriResult
+import authorization.AuthorizationUrlGenerator
+import string.RandomStringGenerator
+import net.RedirectUriParser
+import net.RedirectUriResult
 
 fun main() {
     testGetAccessToken()

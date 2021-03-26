@@ -1,4 +1,4 @@
-package util.string
+package string
 
 object RandomStringGenerator {
 

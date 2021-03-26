@@ -1,6 +1,6 @@
-package util.string
+package net
 
-import util.constant.RegisteredAppInformation
+import constant.RegisteredAppInformation
 
 /**
  * When the user is send to the authorization URL, they will be told to allow or deny access to your application.

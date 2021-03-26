@@ -1,4 +1,4 @@
-package util.constant
+package constant
 
 object RegisteredAppInformation {
 

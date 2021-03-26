@@ -1,6 +1,6 @@
-package util.authorization
+package authorization
 
-import util.constant.RegisteredAppInformation
+import constant.RegisteredAppInformation
 
 object AuthorizationUrlGenerator {
 

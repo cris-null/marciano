@@ -1,6 +1,6 @@
 package net
 
-import util.constant.RegisteredAppInformation
+import constant.RegisteredAppInformation
 import java.io.BufferedReader
 import java.io.DataOutputStream
 import java.io.InputStreamReader
