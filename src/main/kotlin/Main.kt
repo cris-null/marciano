@@ -1,12 +1,14 @@
-import net.AccessTokenResponseRetriever
-import net.TokenResponseParser
-import authorization.AuthorizationUrlGenerator
-import constant.RegisteredAppInformation
+import authorization.AuthorizationManager
 import file.FileTokenManager
-import string.RandomStringGenerator
-import net.RedirectUriParser
-import net.RedirectUriResult
 
 fun main() {
+    val tokenPair = AuthorizationManager().getAuthorizationTokens()
+    println("""
+        Access token = ${tokenPair.accessToken.accessToken}
+        Seconds till expiration = ${tokenPair.accessToken.secondsTillExpiration()}
+        Refresh token = ${tokenPair.refreshToken}
+    """.trimIndent())
 
+    FileTokenManager.writeRefreshTokenToFile(tokenPair.refreshToken)
+    println(FileTokenManager.getRefreshTokenFromFile())
 }

@@ -37,7 +37,7 @@ class AuthorizationManager {
             is RedirectUriResult.Success -> {
                 // Reddit recommends to check that the state matches
                 if (redirectUriResult.state == state)
-                    println("Authorization response' state matches!")
+                    println("Authorization response state matches!")
 
                 return parseRefreshTokenResponse(redirectUriResult.code)
             }
