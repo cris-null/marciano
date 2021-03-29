@@ -18,7 +18,7 @@ object AccessTokenResponseRetriever {
      * @param code The code retrieved from the redirect URI after a successful authorization.
      * @return A String representing a JSON response with the access token, among other things.
      */
-    fun getAccessTokenResponse(secret: String, code: String): String {
+    fun getTokenResponseJson(secret: String, code: String): String {
         val postConnection = setupPostConnection(secret)
         makePostRequest(postConnection, code)
         return getRequestResponse(postConnection)

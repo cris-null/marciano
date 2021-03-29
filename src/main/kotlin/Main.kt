@@ -1,41 +1,14 @@
-import net.AccessTokenResponseRetriever
-import net.TokenResponseParser
-import authorization.AuthorizationUrlGenerator
-import string.RandomStringGenerator
-import net.RedirectUriParser
-import net.RedirectUriResult
+import authorization.AuthorizationManager
+import file.FileTokenManager
 
 fun main() {
-    testGetAccessToken()
-}
+    val tokenPair = AuthorizationManager().getAuthorizationTokens()
+    println("""
+        Access token = ${tokenPair.accessToken.accessToken}
+        Seconds till expiration = ${tokenPair.accessToken.secondsTillExpiration()}
+        Refresh token = ${tokenPair.refreshToken}
+    """.trimIndent())
 
-fun testGetAccessToken() {
-    val state = RandomStringGenerator.getRandomString()
-    println(AuthorizationUrlGenerator.getAuthorizationUrl(state))
-
-    println("Enter redirect URI:")
-    val redirectUri = readLine()
-
-    val redirectUriResult = RedirectUriParser.getRedirectUriResult(redirectUri!!)
-
-    var code: String? = null
-    when (redirectUriResult) {
-        is RedirectUriResult.Success -> {
-            if (redirectUriResult.state == state) println("state matches!")
-            println("code = ${redirectUriResult.code}")
-            code = redirectUriResult.code
-        }
-        is RedirectUriResult.Error -> {
-            println("error msg = ${redirectUriResult.message}")
-        }
-    }
-
-    if (code != null) {
-
-        println("Enter you app's secret:")
-        val secret = readLine()
-        val responseJson = AccessTokenResponseRetriever.getAccessTokenResponse(secret!!, code)
-        val responseObject = TokenResponseParser.parse(responseJson)
-        println(responseObject)
-    }
+    FileTokenManager.writeRefreshTokenToFile(tokenPair.refreshToken)
+    println(FileTokenManager.getRefreshTokenFromFile())
 }
