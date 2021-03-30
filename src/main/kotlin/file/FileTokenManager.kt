@@ -17,11 +17,9 @@ object FileTokenManager {
 
         // Takes the refresh token response and converts it to a JSON string, using the proper renamer so that the string uses
         // underscores as it's a Reddit convention.
-        val jsonString = Klaxon().fieldRenamer(RefreshTokenResponseJsonRenamer).toJsonString(refreshTokenResponse)
-        val sb = StringBuilder(jsonString)
-        val prettyJson = (Parser.default().parse(sb) as JsonObject).toJsonString(true)
+        val jsonString = Klaxon().fieldRenamer(RefreshTokenResponseJsonRenamer).toJsonString(refreshTokenResponse).toPrettyJson()
         println("Writing refresh token to file...")
-        File(REFRESH_TOKEN_FILEPATH).writeText(prettyJson)
+        File(REFRESH_TOKEN_FILEPATH).writeText(jsonString)
         println("OK")
     }
 
