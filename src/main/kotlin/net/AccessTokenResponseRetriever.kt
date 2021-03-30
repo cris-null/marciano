@@ -7,7 +7,7 @@ import constant.RegisteredAppInformation
  *
  * Access tokens are returned by Reddit inside a JSON string.
  */
-object AccessTokenRetriever {
+object AccessTokenResponseRetriever {
 
     /**
      * Indicates that you're using the "standard" code based flow. Used when requesting a new
@@ -31,11 +31,11 @@ object AccessTokenRetriever {
      * can exchange for an access token.
      * @return The JSON response returned by Reddit after receiving an authorization request.
      */
-    fun getNewAccessToken(exchangeCode: String): String {
+    fun getNewAccessTokenResponse(exchangeCode: String): String {
         val parameters =
             "grant_type=$GET_NEW_TOKEN_GRANT_TYPE&code=$exchangeCode&redirect_uri=${RegisteredAppInformation.REDIRECT_URI}"
         val requester = AccessTokenPostRequester(parameters)
-        return requester.requestAccessTokenFromReddit()
+        return requester.getAccessTokenWithPostRequest()
     }
 
     /**
@@ -49,9 +49,9 @@ object AccessTokenRetriever {
      * @return The JSON response returned by Reddit after receiving a refresh request. It will contain the new access token (which will
      * again expire in 1 hour), and a new refresh token for you to refresh in the future.
      */
-    fun getRenewedAccessToken(currentRefreshToken: String): String {
+    fun getRenewedAccessTokenResponse(currentRefreshToken: String): String {
         val parameters = "grant_type=$REFRESH_OLD_TOKEN_GRANT_TYPE&refresh_token=$currentRefreshToken"
         val requester = AccessTokenPostRequester(parameters)
-        return requester.requestAccessTokenFromReddit()
+        return requester.getAccessTokenWithPostRequest()
     }
 }

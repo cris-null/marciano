@@ -38,7 +38,7 @@ class AccessTokenPostRequester(private val postParameters: String, private val a
      * @param address The URL where the POST request should be made to.
      * @return The response returned by Reddit.
      */
-    fun requestAccessTokenFromReddit(): String {
+    fun getAccessTokenWithPostRequest(): String {
         setupHeaders()
         sendPostRequest()
         return getRequestResponse()

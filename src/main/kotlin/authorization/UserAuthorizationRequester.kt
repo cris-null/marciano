@@ -3,14 +3,17 @@ package authorization
 import net.*
 import string.RandomStringGenerator
 
-class AuthorizationManager {
+class UserAuthorizationRequester {
 
     private lateinit var state: String
 
-    fun authorize(): RefreshTokenResponse {
+    /**
+     * Prompts the user to give authorization and if granted returns the
+     */
+    fun requestAuthorization(): AccessToken {
         printAuthorizationPromptToConsole()
         val redirectUriResult = requestRedirectUriFromUser()
-        return getRefreshTokenResponse(redirectUriResult)
+        return getTokenResponse(redirectUriResult)
     }
 
     private fun printAuthorizationPromptToConsole() {
@@ -28,7 +31,7 @@ class AuthorizationManager {
         return RedirectUriParser.getRedirectUriResult(redirectUri)
     }
 
-    private fun getRefreshTokenResponse(redirectUriResult: RedirectUriResult): RefreshTokenResponse {
+    private fun getTokenResponse(redirectUriResult: RedirectUriResult): AccessToken {
         when (redirectUriResult) {
             // User authorized the application.
             is RedirectUriResult.Success -> {
@@ -36,7 +39,7 @@ class AuthorizationManager {
                 if (redirectUriResult.state == state)
                     println("Authorization response state matches!")
 
-                return parseRefreshTokenResponse(redirectUriResult.code)
+                return parseTokenResponse(redirectUriResult.code)
             }
             // User probably denied access. Check docs for the other cases.
             is RedirectUriResult.Error -> {
@@ -53,11 +56,11 @@ class AuthorizationManager {
      *
      * @throws Exception If the JSON response could not be parsed correctly.
      */
-    private fun parseRefreshTokenResponse(code: String): RefreshTokenResponse {
+    private fun parseTokenResponse(code: String): AccessToken {
         val responseJson: String =
-            AccessTokenRetriever.getNewAccessToken(code)
-        val reponse: RefreshTokenResponse =
-            TokenResponseParser.parse(responseJson) ?: throw Exception("Error while parsing JSON response")
+            AccessTokenResponseRetriever.getNewAccessTokenResponse(code)
+        val reponse: AccessToken =
+            AccessTokenResponseParser.parse(responseJson) ?: throw Exception("Error while parsing JSON response")
         return reponse
     }
 }
