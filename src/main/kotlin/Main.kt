@@ -1,25 +1,29 @@
 import authorization.AuthorizationManager
-import authorization.AuthorizationTokenPair
 import file.FileTokenManager
+import net.RefreshTokenResponse
 
 fun main() {
+//    val token = getAuthToken()
+//    printAuthTokenInfo(token)
+//    saveTokenToFile(token)
+//    printRefreshTokenFromFile()
 }
 
-fun getAuthTokenPair(): AuthorizationTokenPair {
-    return AuthorizationManager().getAuthorizationTokens()
-}
 
-fun printAuthTokensInfo(authorizationTokenPair: AuthorizationTokenPair) {
+fun getAuthToken(): RefreshTokenResponse = AuthorizationManager().authorize()
+
+fun printAuthTokenInfo(refreshTokenResponse: RefreshTokenResponse) {
     println(
         """
-        Access token = ${authorizationTokenPair.accessToken.value}
-        Seconds till expiration = ${authorizationTokenPair.accessToken.secondsTillExpiration()}
-        Refresh token = ${authorizationTokenPair.refreshTokenValue}
+        Access token = ${refreshTokenResponse.accessToken}
+        Seconds till expiration = ${refreshTokenResponse.getSecondsTillExpiration()}
+        Refresh token = ${refreshTokenResponse.refreshToken}
     """.trimIndent()
     )
 }
 
-fun saveTokens(authorizationTokenPair: AuthorizationTokenPair) {
-    FileTokenManager.writeRefreshTokenToFile(authorizationTokenPair.refreshTokenValue)
-    println(FileTokenManager.getRefreshTokenFromFile())
-}
+fun printAuthTokenInfoFromFile() = FileTokenManager.getRefreshTokenFromFile()?.let { printAuthTokenInfo(it) }
+
+fun saveTokenToFile(refreshTokenResponse: RefreshTokenResponse) = FileTokenManager.writeRefreshTokenToFile(refreshTokenResponse)
+
+fun printRefreshTokenFromFile() = println(FileTokenManager.getRefreshTokenFromFile())

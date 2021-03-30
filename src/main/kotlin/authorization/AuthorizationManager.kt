@@ -8,21 +8,19 @@ class AuthorizationManager {
 
     private lateinit var state: String
 
-    fun getAuthorizationTokens(): TokenPair {
-        askForAuthorization()
-        val redirectUriResult = getRedirectUri()
-        val refreshTokenResponse = getRefreshTokenResponse(redirectUriResult)
-        val accessToken = AccessToken(refreshTokenResponse.accessToken, refreshTokenResponse.expiresInt.toLong())
-        return TokenPair(accessToken, refreshTokenResponse.refreshToken)
+    fun authorize(): RefreshTokenResponse {
+        printAuthorizationPromptToConsole()
+        val redirectUriResult = requestRedirectUriFromUser()
+        return getRefreshTokenResponse(redirectUriResult)
     }
 
-    private fun askForAuthorization() {
+    private fun printAuthorizationPromptToConsole() {
         state = RandomStringGenerator.getRandomString()
         val authorizationUrl = AuthorizationUrlGenerator.getAuthorizationUrl(state)
         println("Authorize application in the following URL: \n$authorizationUrl")
     }
 
-    private fun getRedirectUri(): RedirectUriResult {
+    private fun requestRedirectUriFromUser(): RedirectUriResult {
         println("Enter the redirect URI:")
         val redirectUri = readLine()
         while (redirectUri.isNullOrEmpty()) {
@@ -49,11 +47,16 @@ class AuthorizationManager {
     }
 
     /**
+     * TODO this function should:
+     *
+     * be renamed
+     * refactor so as to not throw an exception but instead work with nulls
+     *
      * @throws Exception If the JSON response could not be parsed correctly.
      */
     private fun parseRefreshTokenResponse(code: String): RefreshTokenResponse {
         val responseJson: String =
-            AccessTokenResponseRetriever.getTokenResponseJson(RegisteredAppInformation.SECRET, code)
+            AccessTokenResponseJsonRetriever.getTokenResponseJson(RegisteredAppInformation.SECRET, code)
         val reponse: RefreshTokenResponse =
             TokenResponseParser.parse(responseJson) ?: throw Exception("Error while parsing JSON response")
         return reponse
