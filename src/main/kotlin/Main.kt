@@ -1,6 +1,9 @@
 import authorization.AuthorizationManager
+import com.beust.klaxon.Klaxon
 import file.FileTokenManager
+import net.AuthorizationResponseRetriever
 import net.RefreshTokenResponse
+import net.RefreshTokenResponseJsonRenamer
 
 fun main() {
 //    val token = getAuthToken()
@@ -8,7 +11,21 @@ fun main() {
 //    saveTokenToFile(token)
 //    printRefreshTokenFromFile()
 
-    println(FileTokenManager.getRefreshTokenFromFile()?.getSecondsTillExpiration())
+//    println(FileTokenManager.getRefreshTokenFromFile()?.getSecondsTillExpiration())
+
+
+    val token = FileTokenManager.getRefreshTokenFromFile()
+    checkNotNull(token)
+    printAuthTokenInfo(token)
+    println(token)
+    saveTokenToFile(token)
+
+    val newTokenResponse = AuthorizationResponseRetriever.getRefreshTokenResponse(token.refreshToken)
+    val newToken = Klaxon().fieldRenamer(RefreshTokenResponseJsonRenamer).parse<RefreshTokenResponse>(newTokenResponse)
+    checkNotNull(newToken)
+    printAuthTokenInfo(newToken)
+    println(newToken)
+    saveTokenToFile(newToken)
 }
 
 
