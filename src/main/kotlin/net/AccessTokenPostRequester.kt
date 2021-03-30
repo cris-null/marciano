@@ -35,7 +35,6 @@ class AccessTokenPostRequester(private val postParameters: String, private val a
      * Makes a POST request to Reddit requesting an access token. There are different kinds of tokens, and the
      * response returned by Reddit depends on the parameters of the POST requests' data.
      *
-     * @param address The URL where the POST request should be made to.
      * @return The response returned by Reddit.
      */
     fun getAccessTokenWithPostRequest(): String {

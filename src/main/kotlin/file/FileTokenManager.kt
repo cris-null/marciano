@@ -21,13 +21,15 @@ object FileTokenManager {
         println("OK")
     }
 
-    fun getAccessTokenFromFile(): AccessToken? {
+    fun getAccessTokenFromFile(): AccessToken {
         val refreshTokenFile = File(REFRESH_TOKEN_FILEPATH)
         require(refreshTokenFile.exists()) { "No refresh tokens have been saved to a file yet." }
 
         println("Reading refresh token from file...")
         val fileText = File(REFRESH_TOKEN_FILEPATH).readText()
 
-        return Klaxon().fieldRenamer(TokenResponseJsonRenamer).parse<AccessToken>(fileText)
+        val accessToken = Klaxon().fieldRenamer(TokenResponseJsonRenamer).parse<AccessToken>(fileText)
+        checkNotNull(accessToken)
+        return accessToken
     }
 }

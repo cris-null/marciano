@@ -22,7 +22,6 @@ object AccessTokenManager {
     private fun printCurrentStoredToken() {
         println("\nCurrent token in file:")
         val currentToken = FileTokenManager.getAccessTokenFromFile()
-        checkNotNull(currentToken)
         println(currentToken)
     }
 
@@ -32,8 +31,7 @@ object AccessTokenManager {
      */
     fun refreshCurrentAccessToken() {
         printCurrentStoredToken()
-        val refreshToken = FileTokenManager.getAccessTokenFromFile()?.refreshToken
-        checkNotNull(refreshToken)
+        val refreshToken = FileTokenManager.getAccessTokenFromFile().refreshToken
         val newAccessTokenResponse = AccessTokenResponseRetriever.getRenewedAccessTokenResponse(refreshToken)
         val newAccessToken =
             Klaxon().fieldRenamer(TokenResponseJsonRenamer).parse<AccessToken>(newAccessTokenResponse)
