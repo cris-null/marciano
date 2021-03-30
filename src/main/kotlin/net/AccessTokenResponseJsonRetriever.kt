@@ -8,7 +8,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
 
-object AccessTokenResponseRetriever {
+object AccessTokenResponseJsonRetriever {
 
     // To retrieve the access token, Reddit requires a POST request to be made to this URL
     private const val OAUTH_TOKEN_URL = "https://www.reddit.com/api/v1/access_token"
