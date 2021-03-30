@@ -12,7 +12,7 @@ import java.time.ZoneOffset
  *
  * Contains utility methods to determine expiration time of the token.
  */
-data class RefreshTokenResponse(
+data class AccessToken(
     // The Json annotation for the Klaxon library allows to define what said variable
     // will look for in the JSON file.
     // Use mainly to maintain Kotlin style conventions of using camelCase, instead of
@@ -30,29 +30,34 @@ data class RefreshTokenResponse(
 ) {
 
     @Json(name = "retrieved_at")
-    val retrievedAt = getCurrentTimeInEpochSeconds()
+    val retrievedAt = getCurrentTimeInSeconds()
 
     /**
      * Calculates how many seconds remain till this token expires, using Unix Epoch seconds.
      */
-    fun getSecondsTillExpiration(): Long = getExpirationTime() - getCurrentTimeInEpochSeconds()
+    fun getSecondsTillExpiration(): Long = getExpirationDateInSeconds() - getCurrentTimeInSeconds()
 
     /**
      * @return The moment when this token will expire, in Unix Epoch seconds.
      */
-    private fun getExpirationTime(): Long = retrievedAt + duration
+    private fun getExpirationDateInSeconds(): Long = retrievedAt + duration
 
-    private fun getCurrentTimeInEpochSeconds(): Long {
+    private fun getCurrentTimeInSeconds(): Long {
         val now = LocalDateTime.now(ZoneOffset.UTC)
         val currentTimeInEpochSeconds = now.atZone(ZoneOffset.UTC).toEpochSecond()
         return currentTimeInEpochSeconds
+    }
+
+    override fun toString(): String {
+        return "RefreshTokenResponse(accessToken=$accessToken, tokenType=$tokenType, duration=$duration, scope=$scope, refreshToken=$refreshToken, retrievedAt=$retrievedAt)\n" +
+                "Seconds till expiration: ${getSecondsTillExpiration()}"
     }
 }
 
 /**
  * For easy saving and loading with JSON and Klaxon.
  */
-object RefreshTokenResponseJsonRenamer : FieldRenamer {
+object TokenResponseJsonRenamer : FieldRenamer {
 
     override fun fromJson(fieldName: String): String = FieldRenamer.underscoreToCamel(fieldName)
 

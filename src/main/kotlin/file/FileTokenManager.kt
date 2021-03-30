@@ -1,36 +1,36 @@
 package file
 
-import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
-import com.beust.klaxon.Parser
-import net.RefreshTokenResponse
-import net.RefreshTokenResponseJsonRenamer
+import net.AccessToken
+import net.TokenResponseJsonRenamer
 import java.io.File
 
 object FileTokenManager {
 
     private const val REFRESH_TOKEN_FILEPATH = "refresh_token.txt"
-    private val refreshTokenFile = File(REFRESH_TOKEN_FILEPATH)
+    private val TAG = "${FileTokenManager::class.simpleName}"
 
-    fun writeRefreshTokenToFile(refreshTokenResponse: RefreshTokenResponse) {
-//        require(refreshTokenFile.canWrite())
+    fun saveAccessTokenToFile(accessToken: AccessToken) {
+        val refreshTokenFile = File(REFRESH_TOKEN_FILEPATH)
+        if (refreshTokenFile.exists()) require(refreshTokenFile.canWrite())
 
         // Takes the refresh token response and converts it to a JSON string, using the proper renamer so that the string uses
         // underscores as it's a Reddit convention.
-        val jsonString = Klaxon().fieldRenamer(RefreshTokenResponseJsonRenamer).toJsonString(refreshTokenResponse)
-        val sb = StringBuilder(jsonString)
-        val prettyJson = (Parser.default().parse(sb) as JsonObject).toJsonString(true)
-        println("Writing refresh token to file...")
-        File(REFRESH_TOKEN_FILEPATH).writeText(prettyJson)
-        println("OK")
+        val jsonString = Klaxon().fieldRenamer(TokenResponseJsonRenamer).toJsonString(accessToken).toPrettyJson()
+        println("${TAG}: Writing refresh token to file.")
+        File(REFRESH_TOKEN_FILEPATH).writeText(jsonString)
+        println("${TAG}: OK")
     }
 
-    fun getRefreshTokenFromFile(): RefreshTokenResponse? {
-        require(refreshTokenFile.exists()) { "No refresh tokens have been saved to a file yet." }
+    fun getAccessTokenFromFile(): AccessToken {
+        val refreshTokenFile = File(REFRESH_TOKEN_FILEPATH)
+        require(refreshTokenFile.exists()) { "${TAG}: No refresh tokens have been saved to a file yet." }
 
-        println("Reading refresh token from file...")
+        println("${TAG}: Reading refresh token from file.")
         val fileText = File(REFRESH_TOKEN_FILEPATH).readText()
 
-        return Klaxon().fieldRenamer(RefreshTokenResponseJsonRenamer).parse<RefreshTokenResponse>(fileText)
+        val accessToken = Klaxon().fieldRenamer(TokenResponseJsonRenamer).parse<AccessToken>(fileText)
+        checkNotNull(accessToken)
+        return accessToken
     }
 }

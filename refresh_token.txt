@@ -1,8 +1,0 @@
-{
-  "access_token": "480452782549-aDNhixWVfeRpACjmDsXPhtjnaiD0Fg",
-  "expires_in": 3600,
-  "refresh_token": "480452782549-RJc5GNlpmnP_5eN9HWk0JH-7huvd-g",
-  "retrieved_at": 1617071088,
-  "scope": "history identity",
-  "token_type": "bearer"
-}
