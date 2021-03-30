@@ -26,12 +26,11 @@ data class RefreshTokenResponse(
     val duration: Int,
     val scope: String,
     @Json(name = "refresh_token")
-    val refreshToken: String
+    val refreshToken: String,
 ) {
 
-    // Klaxon will not save private properties to a JSON unless annotated
-    @Json(ignored = false)
-    private val retrievedAt = getCurrentTimeInEpochSeconds()
+    @Json(name = "retrieved_at")
+    val retrievedAt = getCurrentTimeInEpochSeconds()
 
     /**
      * Calculates how many seconds remain till this token expires, using Unix Epoch seconds.

@@ -1,6 +1,5 @@
 package authorization
 
-import constant.RegisteredAppInformation
 import net.*
 import string.RandomStringGenerator
 
@@ -56,7 +55,7 @@ class AuthorizationManager {
      */
     private fun parseRefreshTokenResponse(code: String): RefreshTokenResponse {
         val responseJson: String =
-            AccessTokenResponseJsonRetriever.getTokenResponseJson(RegisteredAppInformation.SECRET, code)
+            AccessTokenRetriever.getAccessTokenResponse(code)
         val reponse: RefreshTokenResponse =
             TokenResponseParser.parse(responseJson) ?: throw Exception("Error while parsing JSON response")
         return reponse

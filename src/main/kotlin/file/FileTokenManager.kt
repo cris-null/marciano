@@ -1,6 +1,8 @@
 package file
 
+import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
+import com.beust.klaxon.Parser
 import net.RefreshTokenResponse
 import net.RefreshTokenResponseJsonRenamer
 import java.io.File
@@ -11,13 +13,15 @@ object FileTokenManager {
     private val refreshTokenFile = File(REFRESH_TOKEN_FILEPATH)
 
     fun writeRefreshTokenToFile(refreshTokenResponse: RefreshTokenResponse) {
-        require(refreshTokenFile.canWrite())
+//        require(refreshTokenFile.canWrite())
 
         // Takes the refresh token response and converts it to a JSON string, using the proper renamer so that the string uses
         // underscores as it's a Reddit convention.
         val jsonString = Klaxon().fieldRenamer(RefreshTokenResponseJsonRenamer).toJsonString(refreshTokenResponse)
+        val sb = StringBuilder(jsonString)
+        val prettyJson = (Parser.default().parse(sb) as JsonObject).toJsonString(true)
         println("Writing refresh token to file...")
-        File(REFRESH_TOKEN_FILEPATH).writeText(jsonString)
+        File(REFRESH_TOKEN_FILEPATH).writeText(prettyJson)
         println("OK")
     }
 

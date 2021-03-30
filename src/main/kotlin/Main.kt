@@ -3,10 +3,10 @@ import file.FileTokenManager
 import net.RefreshTokenResponse
 
 fun main() {
-//    val token = getAuthToken()
-//    printAuthTokenInfo(token)
-//    saveTokenToFile(token)
-//    printRefreshTokenFromFile()
+    val token = getAuthToken()
+    printAuthTokenInfo(token)
+    saveTokenToFile(token)
+    printRefreshTokenFromFile()
 }
 
 
