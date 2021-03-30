@@ -55,7 +55,7 @@ class AuthorizationManager {
      */
     private fun parseRefreshTokenResponse(code: String): RefreshTokenResponse {
         val responseJson: String =
-            AuthorizationResponseRetriever.getAuthorizationResponse(code)
+            AccessTokenRetriever.getNewAccessToken(code)
         val reponse: RefreshTokenResponse =
             TokenResponseParser.parse(responseJson) ?: throw Exception("Error while parsing JSON response")
         return reponse

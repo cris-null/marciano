@@ -14,11 +14,20 @@ import java.util.*
 private const val OAUTH_TOKEN_URL = "https://www.reddit.com/api/v1/access_token"
 
 /**
- * Sets the connection required for authorization with Reddit when making a POST request for an auth token.
+ * Generates POST requests that ask for an access token. Depending on the [postParameters], the request will inform Reddit
+ * that your application wants a brand new access token (generally you want this after first being authorized by the user),
+ * or that you want to refresh your expired access token.
  *
- * Uses "HTTP BASIC Authentication" which is a RFC standard.
+ *@param postParameters The parameter that tell Reddit if you want a new token, or want to refresh your old one. These
+ * parameters are part of the POST connection data/body (not part of the URL).
+ *
+ * For a new token the parameters should look like this:
+ * grant_type=authorization_code&code=CODE&redirect_uri=URI
+ *
+ * For refreshing an old token they should look like this:
+ * grant_type=refresh_token&refresh_token=TOKEN
  */
-class AuthPostRequestMaker(private val postParameters: String, private val address: String = OAUTH_TOKEN_URL) {
+class AccessTokenPostRequester(private val postParameters: String, private val address: String = OAUTH_TOKEN_URL) {
 
     private val postRequest: HttpURLConnection = initRequest()
 
