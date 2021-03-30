@@ -47,6 +47,10 @@ data class RefreshTokenResponse(
         val currentTimeInEpochSeconds = now.atZone(ZoneOffset.UTC).toEpochSecond()
         return currentTimeInEpochSeconds
     }
+
+    override fun toString(): String {
+        return "RefreshTokenResponse(accessToken=$accessToken, tokenType=$tokenType, duration=$duration, scope=$scope, refreshToken=$refreshToken, retrievedAt=$retrievedAt)\n"
+    }
 }
 
 /**
