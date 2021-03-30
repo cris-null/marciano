@@ -10,10 +10,10 @@ import java.io.File
 object FileTokenManager {
 
     private const val REFRESH_TOKEN_FILEPATH = "refresh_token.txt"
-    private val refreshTokenFile = File(REFRESH_TOKEN_FILEPATH)
 
     fun writeRefreshTokenToFile(refreshTokenResponse: RefreshTokenResponse) {
-//        require(refreshTokenFile.canWrite())
+        val refreshTokenFile = File(REFRESH_TOKEN_FILEPATH)
+        if (refreshTokenFile.exists()) require(refreshTokenFile.canWrite())
 
         // Takes the refresh token response and converts it to a JSON string, using the proper renamer so that the string uses
         // underscores as it's a Reddit convention.
@@ -24,6 +24,7 @@ object FileTokenManager {
     }
 
     fun getRefreshTokenFromFile(): RefreshTokenResponse? {
+        val refreshTokenFile = File(REFRESH_TOKEN_FILEPATH)
         require(refreshTokenFile.exists()) { "No refresh tokens have been saved to a file yet." }
 
         println("Reading refresh token from file...")

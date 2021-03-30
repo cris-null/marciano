@@ -2,7 +2,10 @@ package net
 
 import constant.RegisteredAppInformation
 
-object AccessTokenRetriever {
+/**
+ * Access tokens are returned by Reddit inside a JSON
+ */
+object AuthorizationResponseRetriever {
 
     /**
      * Indicates that you're using the "standard" code based flow. Used when requesting a new
@@ -16,10 +19,16 @@ object AccessTokenRetriever {
     private const val REFRESH_GRANT_TYPE = "refresh_token"
 
     /**
+     * After the user authorizes your application, if you didn't get an error and the state value checks out,
+     * you may then make a POST request with [code] (a one-time use code that may be exchanged for a bearer token),
+     * to retrieve an access token.
+     *
+     * This function makes the POST request needed to get that access token (given in the form of a JSON string).
+     *
      * @param code The code retrieved from the redirect URI after a successful authorization.
-     * @return A String representing a JSON response with the access token, among other things.
+     * @return The JSON response returned by Reddit after receiving an authorization request.
      */
-    fun getAccessTokenResponse(code: String): String {
+    fun getAuthorizationResponse(code: String): String {
         val parameters = "grant_type=$AUTHORIZATION_GRANT_TYPE&code=$code&redirect_uri=${RegisteredAppInformation.REDIRECT_URI}"
         val requestMaker = AuthPostRequestMaker(parameters)
         return requestMaker.requestAccessTokenFromReddit()
@@ -27,12 +36,15 @@ object AccessTokenRetriever {
 
     /**
      * Access tokens expire after 1 hour. To get a new one use your refresh token (it is obtained by requesting
-     * an access token with duration=permanent.
+     * an access token with duration=permanent).
+     *
+     * This function makes the POST request needed to get that new access token (given in the form of a JSON string).
+     *
+     * @return The JSON response returned by Reddit after receiving a refresh request.
      */
-    fun getRefreshedAccessTokenResponse(refreshToken: String): String {
+    fun getRefreshTokenResponse(refreshToken: String): String {
         val parameters = "grant_type=$REFRESH_GRANT_TYPE&refresh_token=$refreshToken"
         val requestMaker = AuthPostRequestMaker(parameters)
         return requestMaker.requestAccessTokenFromReddit()
     }
-
 }
