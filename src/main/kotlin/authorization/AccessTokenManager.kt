@@ -19,7 +19,7 @@ object AccessTokenManager {
         printCurrentStoredToken()
     }
 
-    private fun printCurrentStoredToken() {
+    fun printCurrentStoredToken() {
         println("\nCurrent token in file:")
         val currentToken = FileTokenManager.getAccessTokenFromFile()
         println(currentToken)
