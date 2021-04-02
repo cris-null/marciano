@@ -20,20 +20,13 @@ class UserAuthorizationRequester {
      */
     fun requestCliAuthorization(): RedirectUriResult {
         val authUrl = generateAuthUrl()
-        println("Please allow authorization with Reddit.\nOpening browser...")
-        openBrowser(authUrl)
+        println("Please allow authorization with Reddit.\nOpen this link in your browser:\n$authUrl")
         return requestRedirectUriFromUser()
     }
 
     private fun generateAuthUrl(): String {
         val state = RandomStringGenerator.getRandomString()
         return AuthorizationUrlGenerator.getAuthorizationUrl(state)
-    }
-
-    private fun openBrowser(url: String) {
-        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-            Desktop.getDesktop().browse( URI(url))
-        }
     }
 
     private fun requestRedirectUriFromUser(): RedirectUriResult {
