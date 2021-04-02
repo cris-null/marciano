@@ -14,9 +14,6 @@ repositories {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
-    // JSON with Klaxon
-    implementation 'com.beust:klaxon:5.5'
-
     // Coroutine support
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3'
 
