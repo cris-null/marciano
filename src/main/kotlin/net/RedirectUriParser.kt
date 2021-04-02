@@ -9,11 +9,11 @@ import constant.RegisteredAppInformation
  */
 object RedirectUriParser {
 
-    fun getRedirectUriResult(redirectUri: String): RedirectUriResult {
+    fun parse(redirectUri: String, originalState: String): RedirectUriResult {
         return if (redirectUri.contains("error="))
             parseErrorUri(redirectUri)
         else
-            parseSuccessUri(redirectUri)
+            parseSuccessUri(redirectUri, originalState)
     }
 
     /**
@@ -32,13 +32,22 @@ object RedirectUriParser {
     /**
      * Assumes that if the redirect URI does not contain the error parameter, then the authorization was successful.
      */
-    private fun parseSuccessUri(redirectUri: String): RedirectUriResult.Success {
+    private fun parseSuccessUri(redirectUri: String, originalState: String): RedirectUriResult {
         // Example of what a redirect URI looks like when the user granted access:
         // http://localhost:8080/?state=4dea32db-d4fc-4f3a-b686-26fc3d18e45f&code=HExMBPuoKiUW3togL7YCXH7OJmY4sg#_
         val successUri = getSimplifiedUri(redirectUri)
         val code = successUri.substringAfterLast("code=")
         val state = successUri.substringAfter("state=").substringBefore("&code=")
-        return RedirectUriResult.Success(state, code)
+
+        // If the states don't match, then something went wrong.
+        return if (state != originalState) {
+            RedirectUriResult.Error(
+                "States don't match.\n" +
+                        "Original state: $originalState\n" +
+                        "State parsed from the redirect URI: $state"
+            )
+        } else
+            RedirectUriResult.Success(code)
     }
 
     /**
@@ -52,6 +61,6 @@ object RedirectUriParser {
 
 sealed class RedirectUriResult {
 
-    data class Success(val state: String, val code: String) : RedirectUriResult()
+    data class Success(val code: String) : RedirectUriResult()
     data class Error(val message: String) : RedirectUriResult()
 }

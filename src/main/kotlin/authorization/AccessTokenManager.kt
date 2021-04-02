@@ -8,16 +8,20 @@ import net.AccessTokenResponseRetriever
 
 object AccessTokenManager {
 
-    /**
-     * Prompts the user for authorization, parsers the redirect user for the access code, exchanges it for an access token,
-     * and saves it to a file.
-     */
     fun getNewAccessToken() {
-        val accessTokenResponse = UserAuthorizationRequester().requestAuthorization()
-        println("Received access token = $accessTokenResponse")
-        FileTokenManager.saveAccessTokenToFile(accessTokenResponse)
-        printCurrentStoredToken()
+
     }
+
+//    /**
+//     * Prompts the user for authorization, parsers the redirect user for the access code, exchanges it for an access token,
+//     * and saves it to a file.
+//     */
+//    fun getNewAccessToken() {
+//        val accessTokenResponse = UserAuthorizationRequester().requestAuthorization()
+//        println("Received access token = $accessTokenResponse")
+//        FileTokenManager.saveAccessTokenToFile(accessTokenResponse)
+//        printCurrentStoredToken()
+//    }
 
     fun printCurrentStoredToken() {
         println("\nCurrent token in file:")
