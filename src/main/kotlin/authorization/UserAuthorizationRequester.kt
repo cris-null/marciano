@@ -2,24 +2,38 @@ package authorization
 
 import net.*
 import string.RandomStringGenerator
+import java.awt.Desktop
+import java.net.URI
 
 class UserAuthorizationRequester {
 
     private lateinit var state: String
 
     /**
-     * Prompts the user to give authorization and if granted returns the
+     * Requests authorization to the user via the command line.
+     *
+     * Will asks to user to authorize the application in their web browser. For now,
+     * the user will have to manually enter the redirect URI into the command line,
+     * so that this program can parse it and get the code required to obtain an access token.
+     *
+     * @return The [RedirectUriResult] obtained
      */
-    fun requestAuthorization(): AccessToken {
-        printAuthorizationPromptToConsole()
-        val redirectUriResult = requestRedirectUriFromUser()
-        return getTokenResponse(redirectUriResult)
+    fun requestCliAuthorization(): RedirectUriResult {
+        val authUrl = generateAuthUrl()
+        println("Please allow authorization with Reddit.\nOpening browser...")
+        openBrowser(authUrl)
+        return requestRedirectUriFromUser()
     }
 
-    private fun printAuthorizationPromptToConsole() {
-        state = RandomStringGenerator.getRandomString()
-        val authorizationUrl = AuthorizationUrlGenerator.getAuthorizationUrl(state)
-        println("Authorize application in the following URL: \n$authorizationUrl")
+    private fun generateAuthUrl(): String {
+        val state = RandomStringGenerator.getRandomString()
+        return AuthorizationUrlGenerator.getAuthorizationUrl(state)
+    }
+
+    private fun openBrowser(url: String) {
+        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+            Desktop.getDesktop().browse( URI(url))
+        }
     }
 
     private fun requestRedirectUriFromUser(): RedirectUriResult {
@@ -29,38 +43,5 @@ class UserAuthorizationRequester {
             println("Error! Enter the redirect URI:")
         }
         return RedirectUriParser.getRedirectUriResult(redirectUri)
-    }
-
-    private fun getTokenResponse(redirectUriResult: RedirectUriResult): AccessToken {
-        when (redirectUriResult) {
-            // User authorized the application.
-            is RedirectUriResult.Success -> {
-                // Reddit recommends to check that the state matches
-                if (redirectUriResult.state == state)
-                    println("Authorization response state matches!")
-
-                return parseTokenResponse(redirectUriResult.code)
-            }
-            // User probably denied access. Check docs for the other cases.
-            is RedirectUriResult.Error -> {
-                throw Exception("Authorization Error! Message: ${redirectUriResult.message}")
-            }
-        }
-    }
-
-    /**
-     * TODO this function should:
-     *
-     * be renamed
-     * refactor so as to not throw an exception but instead work with nulls
-     *
-     * @throws Exception If the JSON response could not be parsed correctly.
-     */
-    private fun parseTokenResponse(code: String): AccessToken {
-        val responseJson: String =
-            AccessTokenResponseRetriever.getNewAccessTokenResponse(code)
-        val reponse: AccessToken =
-            AccessTokenResponseParser.parse(responseJson) ?: throw Exception("Error while parsing JSON response")
-        return reponse
     }
 }
