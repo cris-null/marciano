@@ -19,7 +19,7 @@ import com.squareup.moshi.JsonClass
  * a refresh token, and those that don't.
  */
 @JsonClass(generateAdapter = true)
-data class AuthorizationResponse(
+data class AccessToken(
     @Json(name = "access_token")
     val accessToken: String,
     @Json(name = "token_type")
