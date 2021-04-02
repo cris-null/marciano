@@ -1,6 +1,8 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.4.31'
+    id 'org.jetbrains.kotlin.jvm' version '1.4.32'
 }
+
+apply plugin: 'kotlin-kapt'
 
 group 'net.csalazar.marciano'
 version '0.1'
@@ -11,8 +13,24 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
+
+    // JSON with Klaxon
     implementation 'com.beust:klaxon:5.5'
+
+    // Coroutine support
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3'
+
+    // JSON with Moshi
+    implementation("com.squareup.moshi:moshi-kotlin:1.11.0")
+    // Moshi codegen with kapt, for code gen instead of reflection
+    kapt("com.squareup.moshi:moshi-kotlin-codegen:1.11.0")
+
+    // Retrofit HTTP client
+    // https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit
+    implementation group: 'com.squareup.retrofit2', name: 'retrofit', version: '2.9.0'
+    // Converter so that Retrofit works with Moshi
+    // https://mvnrepository.com/artifact/com.squareup.retrofit2/converter-moshi
+    implementation group: 'com.squareup.retrofit2', name: 'converter-moshi', version: '2.9.0'
 }
 
 jar {
