@@ -13,7 +13,7 @@ object UserAuthorizationRequester {
      * the user will have to manually enter the redirect URI into the command line,
      * so that this program can parse it and get the code required to obtain an access token.
      * */
-    fun requestCliAuthorization(): RedirectUriResult {
+    fun request(): RedirectUriResult {
         // You should generate a unique, possibly random, string for each authorization request.
         // This value will be returned to you when the user visits your REDIRECT_URI after allowing
         // your app access - you should verify that it matches the one you sent.
@@ -22,15 +22,15 @@ object UserAuthorizationRequester {
 
         val authUrl = AuthorizationUrlGenerator.getAuthorizationUrl(state)
         println("Please allow authorization with Reddit.\nOpen this link in your browser:\n$authUrl")
-        return requestRedirectUriFromUser()
+        return requestRedirectUriFromUser(state)
     }
 
-    private fun requestRedirectUriFromUser(): RedirectUriResult {
+    private fun requestRedirectUriFromUser(state: String): RedirectUriResult {
         println("Enter the redirect URI:")
         val redirectUri = readLine()
         while (redirectUri.isNullOrEmpty()) {
             println("Error! Enter the redirect URI:")
         }
-        return RedirectUriParser.parse(redirectUri)
+        return RedirectUriParser.parse(redirectUri, state)
     }
 }

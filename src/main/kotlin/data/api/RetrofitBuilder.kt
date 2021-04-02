@@ -1,19 +1,17 @@
 package data.api
 
-import com.squareup.moshi.Moshi
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.create
 
-object RetrofitBuilder{
+class RetrofitBuilder(baseUrl: String) {
 
-    private const val BASE_URL = "https://oauth.reddit.com"
-
-    private fun getRetrofit(): Retrofit {
-        return Retrofit.Builder()
-            .baseUrl(BASE_URL)
+    private val retrofit: Retrofit =
+        Retrofit.Builder()
+            .baseUrl(baseUrl)
             .addConverterFactory(MoshiConverterFactory.create())
             .build()
-    }
 
-    val identityService: ApiService = getRetrofit().create(ApiService::class.java)
+    val identityService: ApiService by lazy { retrofit.create(ApiService::class.java) }
+    val authorizationService: AuthorizationService by lazy { retrofit.create(authorizationService::class.java) }
 }
