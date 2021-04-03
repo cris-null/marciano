@@ -27,7 +27,7 @@ object FileTokenManager {
 
     fun getAccessTokenFromFile(): AccessToken {
         val refreshTokenFile = File(ACCESS_TOKEN_FILEPATH)
-        require(refreshTokenFile.exists()) { "${TAG}: No refresh tokens have been saved to a file yet." }
+        require(refreshTokenFile.exists()) { Logger.log(TAG, "No refresh tokens have been saved to a file yet.") }
 
         Logger.log(TAG, "Reading refresh token from file.")
         val fileText = File(ACCESS_TOKEN_FILEPATH).readText()

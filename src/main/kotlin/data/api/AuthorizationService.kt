@@ -12,7 +12,7 @@ interface AuthorizationService {
 
     @Headers(
         "Content-Type: application/x-www-form-urlencoded",
-        "User-Agent: marciano library Kotlin/1.4"
+        "User-Agent: marciano Kotlin/1.4"
     )
     @POST("/api/v1/access_token")
     /**

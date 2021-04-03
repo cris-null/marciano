@@ -16,14 +16,13 @@ object AccessTokenManager {
     /** For request that do not require a token */
     private const val BASE_URL = "https://www.reddit.com"
 
-    /** If the request requires a token you MUST use this */
-    private const val OAUTH_URL = "https://oauth.reddit.com"
-
     /**
-     * Indicates that you're using the "standard" code based flow. Used when requesting a new
-     * access token after being granted authorization by the user.
+     * grant_type that indicates that you're using the "standard" code based flow.
+     * Used when requesting a new access token after being granted authorization by the user.
      */
     private const val GET_NEW_TOKEN = "authorization_code"
+    /** grant_type that indicates you're requesting a new access token using a refresh token */
+    private const val GET_REFRESHED_TOKEN = "refresh_token"
 
     private val TAG = javaClass.simpleName
 
@@ -36,11 +35,10 @@ object AccessTokenManager {
 
         val httpBasicAuth = getHttpBasicAuth()
         val requestParameters = getNewRequestParameters(redirectUriResult)
-        val accessToken = requestNewAccessToken(httpBasicAuth, requestParameters)
+        val accessToken = requestAccessToken(httpBasicAuth, requestParameters)
         checkNotNull(accessToken)
         FileTokenManager.saveAccessTokenToFile(accessToken)
     }
-
 
 
     /** Needed for the "Authorization" header of the request. */
@@ -64,12 +62,14 @@ object AccessTokenManager {
     }
 
     /**
-     * Makes a POST request to Reddit asking for an access token.
+     * Makes a POST request to Reddit asking for an access token. This function can be used both for
+     * requesting a new access token, or refreshing an old one, as the only thing different between them
+     * are the POST body [parameters]
      * @param httpBasicAuth Needed for the "Authorization" header of the request. See [HttpBasicAuthFormatter].
      * @param parameters See [getNewRequestParameters]
      * @return An [AccessToken] if the response is successful, null otherwise.
      */
-    private fun requestNewAccessToken(httpBasicAuth: String, parameters: RequestBody): AccessToken? {
+    private fun requestAccessToken(httpBasicAuth: String, parameters: RequestBody): AccessToken? {
         val retrofit = RetrofitBuilder(BASE_URL)
         val authorizationService = retrofit.authorizationService
         val call = authorizationService.getAccessToken(httpBasicAuth, parameters)
@@ -82,6 +82,30 @@ object AccessTokenManager {
             Logger.log(TAG, "Error during authorization request. ${response.message()}")
             null
         }
+    }
+
+
+    fun refreshAccessToken() {
+        Logger.log(TAG, "Refreshing access token.")
+        val refreshToken = getRefreshToken()
+        checkNotNull(refreshToken) {Logger.log(TAG, "No refresh token found.")}
+
+        val httpBasicAuth = getHttpBasicAuth()
+        val parameters = "grant_type=$GET_REFRESHED_TOKEN&refresh_token=$refreshToken"
+            .toRequestBody("text/plain".toMediaTypeOrNull())
+
+        val accessToken = requestAccessToken(httpBasicAuth, parameters)
+        checkNotNull(accessToken)
+        FileTokenManager.saveAccessTokenToFile(accessToken)
+    }
+
+    /**
+     * Gets the current refresh token from a file on disk.
+     * @return The refresh token if it exists, null otherwise.
+     */
+    private fun getRefreshToken(): String? {
+        val accessToken = FileTokenManager.getAccessTokenFromFile()
+        return accessToken.refreshToken
     }
 
 

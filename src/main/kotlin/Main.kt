@@ -11,8 +11,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 fun main() {
-    val accessToken = AccessTokenManager.getNewAccessToken()
-    println(accessToken)
+    AccessTokenManager.refreshAccessToken()
 }
 //
 //fun test() = runBlocking {
