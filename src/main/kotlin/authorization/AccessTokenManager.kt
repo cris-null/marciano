@@ -5,6 +5,7 @@ import constant.RegisteredAppInformation
 import data.api.RetrofitBuilder
 import data.model.AccessToken
 import file.FileSecretReader
+import file.FileTokenManager
 import net.RedirectUriResult
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
@@ -26,17 +27,18 @@ object AccessTokenManager {
 
     private val TAG = javaClass.simpleName
 
-    fun getNewAccessToken(): AccessToken? {
+    fun getNewAccessToken() {
         val redirectUriResult = UserAuthorizationRequester.request()
-        if (redirectUriResult is RedirectUriResult.Error) {
-            Logger.log(TAG, "Bad redirect URI. Message = ${redirectUriResult.message}")
-            return null
+        check(redirectUriResult is RedirectUriResult.Success) {
+            Logger.log(TAG, "Bad redirect URI. " +
+                    "Message = ${(redirectUriResult as RedirectUriResult.Error).message}")
         }
 
         val httpBasicAuth = getHttpBasicAuth()
         val requestParameters = getNewRequestParameters(redirectUriResult)
-
-        return requestNewAccessToken(httpBasicAuth, requestParameters)
+        val accessToken = requestNewAccessToken(httpBasicAuth, requestParameters)
+        checkNotNull(accessToken)
+        FileTokenManager.saveAccessTokenToFile(accessToken)
     }
 
 
@@ -52,9 +54,7 @@ object AccessTokenManager {
      * Gets the specific parameters required for the POST request's body that asks
      * for a new access token.
      */
-    private fun getNewRequestParameters(redirectUriResult: RedirectUriResult): RequestBody {
-        // If it's not an error, you got the exchange code
-        check(redirectUriResult is RedirectUriResult.Success)
+    private fun getNewRequestParameters(redirectUriResult: RedirectUriResult.Success): RequestBody {
         val exchangeCode: String = redirectUriResult.code
         val redirectUri: String = RegisteredAppInformation.REDIRECT_URI
         // Set the parameters Reddit requires in the POST request's body

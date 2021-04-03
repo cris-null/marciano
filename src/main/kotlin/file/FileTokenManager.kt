@@ -7,28 +7,30 @@ import java.io.File
 
 object FileTokenManager {
 
-    private const val REFRESH_TOKEN_FILEPATH = "refresh_token.txt"
-    private val tag = "${FileTokenManager::class.simpleName}"
+    private val TAG = javaClass.simpleName
+    private const val ACCESS_TOKEN_FILEPATH = "access_token.txt"
+    private const val INDENTATION = "    "
 
     fun saveAccessTokenToFile(accessToken: AccessToken) {
-        val refreshTokenFile = File(REFRESH_TOKEN_FILEPATH)
+        val refreshTokenFile = File(ACCESS_TOKEN_FILEPATH)
         if (refreshTokenFile.exists()) require(refreshTokenFile.canWrite())
 
         val moshi = Moshi.Builder().build()
-        val jsonAdapter = moshi.adapter(AccessToken::class.java)
+        // indent() is for making it a bit more readable.
+        val jsonAdapter = moshi.adapter(AccessToken::class.java).indent(INDENTATION)
         val jsonString = jsonAdapter.toJson(accessToken)
 
-        Logger.log(tag, " Writing refresh token to file.")
-        File(REFRESH_TOKEN_FILEPATH).writeText(jsonString)
-        println("${tag}: OK")
+        Logger.log(TAG, " Writing access token to disk...")
+        File(ACCESS_TOKEN_FILEPATH).writeText(jsonString)
+        println("${TAG}: OK")
     }
 
     fun getAccessTokenFromFile(): AccessToken {
-        val refreshTokenFile = File(REFRESH_TOKEN_FILEPATH)
-        require(refreshTokenFile.exists()) { "${tag}: No refresh tokens have been saved to a file yet." }
+        val refreshTokenFile = File(ACCESS_TOKEN_FILEPATH)
+        require(refreshTokenFile.exists()) { "${TAG}: No refresh tokens have been saved to a file yet." }
 
-        Logger.log(tag, "Reading refresh token from file.")
-        val fileText = File(REFRESH_TOKEN_FILEPATH).readText()
+        Logger.log(TAG, "Reading refresh token from file.")
+        val fileText = File(ACCESS_TOKEN_FILEPATH).readText()
 
         val moshi = Moshi.Builder().build()
         val jsonAdapter = moshi.adapter(AccessToken::class.java)
