@@ -1,35 +1,38 @@
 package file
 
-import com.beust.klaxon.Klaxon
-import net.AccessToken
-import net.TokenResponseJsonRenamer
+import Logger
+import com.squareup.moshi.Moshi
+import data.model.AccessToken
 import java.io.File
 
 object FileTokenManager {
 
     private const val REFRESH_TOKEN_FILEPATH = "refresh_token.txt"
-    private val TAG = "${FileTokenManager::class.simpleName}"
+    private val tag = "${FileTokenManager::class.simpleName}"
 
     fun saveAccessTokenToFile(accessToken: AccessToken) {
         val refreshTokenFile = File(REFRESH_TOKEN_FILEPATH)
         if (refreshTokenFile.exists()) require(refreshTokenFile.canWrite())
 
-        // Takes the refresh token response and converts it to a JSON string, using the proper renamer so that the string uses
-        // underscores as it's a Reddit convention.
-        val jsonString = Klaxon().fieldRenamer(TokenResponseJsonRenamer).toJsonString(accessToken).toPrettyJson()
-        println("${TAG}: Writing refresh token to file.")
+        val moshi = Moshi.Builder().build()
+        val jsonAdapter = moshi.adapter(AccessToken::class.java)
+        val jsonString = jsonAdapter.toJson(accessToken)
+
+        Logger.log(tag, " Writing refresh token to file.")
         File(REFRESH_TOKEN_FILEPATH).writeText(jsonString)
-        println("${TAG}: OK")
+        println("${tag}: OK")
     }
 
     fun getAccessTokenFromFile(): AccessToken {
         val refreshTokenFile = File(REFRESH_TOKEN_FILEPATH)
-        require(refreshTokenFile.exists()) { "${TAG}: No refresh tokens have been saved to a file yet." }
+        require(refreshTokenFile.exists()) { "${tag}: No refresh tokens have been saved to a file yet." }
 
-        println("${TAG}: Reading refresh token from file.")
+        Logger.log(tag, "Reading refresh token from file.")
         val fileText = File(REFRESH_TOKEN_FILEPATH).readText()
 
-        val accessToken = Klaxon().fieldRenamer(TokenResponseJsonRenamer).parse<AccessToken>(fileText)
+        val moshi = Moshi.Builder().build()
+        val jsonAdapter = moshi.adapter(AccessToken::class.java)
+        val accessToken = jsonAdapter.fromJson(fileText)
         checkNotNull(accessToken)
         return accessToken
     }
