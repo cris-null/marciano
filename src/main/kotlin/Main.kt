@@ -1,4 +1,5 @@
 import authorization.AccessTokenExpirationWatchdog
+import authorization.AccessTokenManager
 import data.api.RetrofitBuilder
 import data.model.Identity
 import file.FileTokenManager
@@ -10,7 +11,8 @@ import retrofit2.Callback
 import retrofit2.Response
 
 fun main() {
-
+    val accessToken = AccessTokenManager.getNewAccessToken()
+    println(accessToken)
 }
 //
 //fun test() = runBlocking {

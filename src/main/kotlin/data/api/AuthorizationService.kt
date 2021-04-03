@@ -1,6 +1,7 @@
 package data.api
 
 import data.model.AccessToken
+import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.Header
@@ -52,6 +53,6 @@ interface AuthorizationService {
      */
     fun getAccessToken(
         @Header("Authorization") httpBasicAuth: String,
-        @Body parameters: String
+        @Body parameters: RequestBody
     ): Call<AccessToken>
 }

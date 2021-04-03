@@ -28,6 +28,10 @@ dependencies {
     // Converter so that Retrofit works with Moshi
     // https://mvnrepository.com/artifact/com.squareup.retrofit2/converter-moshi
     implementation group: 'com.squareup.retrofit2', name: 'converter-moshi', version: '2.9.0'
+
+    // HTTP logging interceptor for testing and being able to see the raw json response
+    // Also important for some media type and response body conversion functions
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
 }
 
 jar {

@@ -6,60 +6,62 @@ import data.api.RetrofitBuilder
 import data.model.AccessToken
 import file.FileSecretReader
 import net.RedirectUriResult
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 object AccessTokenManager {
 
+    /** For request that do not require a token */
     private const val BASE_URL = "https://www.reddit.com"
+
+    /** If the request requires a token you MUST use this */
     private const val OAUTH_URL = "https://oauth.reddit.com"
 
-    private val tag = this.javaClass.simpleName
+    /**
+     * Indicates that you're using the "standard" code based flow. Used when requesting a new
+     * access token after being granted authorization by the user.
+     */
+    private const val GET_NEW_TOKEN = "authorization_code"
+
+    private val TAG = javaClass.simpleName
 
     fun getNewAccessToken(): AccessToken? {
         val redirectUriResult = UserAuthorizationRequester.request()
         if (redirectUriResult is RedirectUriResult.Error) {
-            Logger.log(tag, "Bad redirect URI. Message = ${redirectUriResult.message}")
+            Logger.log(TAG, "Bad redirect URI. Message = ${redirectUriResult.message}")
             return null
         }
 
         // If it's not an error, you got the exchange code
-        val exchangeCode: String = (redirectUriResult as RedirectUriResult.Success).code
+        check(redirectUriResult is RedirectUriResult.Success)
+        val exchangeCode: String = redirectUriResult.code
         val redirectUri: String = RegisteredAppInformation.REDIRECT_URI
-        val parameters = "grant_type=authorization_code&code=$exchangeCode&redirect_uri=$redirectUri"
+        // Set the parameters Reddit requires in the POST request's body
+        val parameters = "grant_type=$GET_NEW_TOKEN&code=$exchangeCode&redirect_uri=$redirectUri"
 
+        // These are needed for the "Authorization" header of the request.
         val clientId: String = RegisteredAppInformation.CLIENT_ID
         val clientSecret: String = FileSecretReader.getClientSecret()
+        // This is the value that will accompany the "Authorization" header.
         val basicAuth: String = HttpBasicAuthGetter.getBasicAuth(clientId, clientSecret)
 
-        val authService = RetrofitBuilder(BASE_URL).authorizationService
-        val call = authService.getAccessToken(basicAuth, parameters)
+        // All the requirements have been fulfilled, time to make the request.
+        val retrofit = RetrofitBuilder(BASE_URL)
+        val authService = retrofit.authorizationService
+        // The parameters won't work if send as a plain string, they need to be converted.
+        val postParameters: RequestBody = parameters.toRequestBody("text/plain".toMediaTypeOrNull())
+        val call = authService.getAccessToken(basicAuth, postParameters)
 
         var accessToken: AccessToken? = null
-        call.enqueue(object: Callback<AccessToken> {
-            /**
-             * Invoked for a received HTTP response.
-             *
-             *
-             * Note: An HTTP response may still indicate an application-level failure such as a 404 or 500.
-             * Call [Response.isSuccessful] to determine if the response indicates success.
-             */
-            override fun onResponse(call: Call<AccessToken>, response: Response<AccessToken>) {
-                if (response.isSuccessful) {
-                    Logger.log(tag, "Successful response.")
-                    accessToken = response.body()
-                }
-            }
 
-            /**
-             * Invoked when a network exception occurred talking to the server or when an unexpected exception
-             * occurred creating the request or processing the response.
-             */
-            override fun onFailure(call: Call<AccessToken>, t: Throwable) {
-                Logger.log(tag, "Error during authorization request. ${t.message}")
-            }
-        })
+        val response = call.execute()
+        if (response.isSuccessful) {
+            Logger.log(TAG, "Successful response.")
+            accessToken = response.body()
+        } else {
+            Logger.log(TAG, "Error during authorization request. ${response.message()}")
+        }
 
         return accessToken
     }
