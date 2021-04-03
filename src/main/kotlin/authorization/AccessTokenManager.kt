@@ -33,38 +33,57 @@ object AccessTokenManager {
             return null
         }
 
+        val httpBasicAuth = getHttpBasicAuth()
+        val requestParameters = getNewRequestParameters(redirectUriResult)
+
+        return requestNewAccessToken(httpBasicAuth, requestParameters)
+    }
+
+
+
+    /** Needed for the "Authorization" header of the request. */
+    private fun getHttpBasicAuth(): String {
+        val clientId: String = RegisteredAppInformation.CLIENT_ID
+        val clientSecret: String = FileSecretReader.getClientSecret()
+        return HttpBasicAuthFormatter.getBasicAuth(clientId, clientSecret)
+    }
+
+    /**
+     * Gets the specific parameters required for the POST request's body that asks
+     * for a new access token.
+     */
+    private fun getNewRequestParameters(redirectUriResult: RedirectUriResult): RequestBody {
         // If it's not an error, you got the exchange code
         check(redirectUriResult is RedirectUriResult.Success)
         val exchangeCode: String = redirectUriResult.code
         val redirectUri: String = RegisteredAppInformation.REDIRECT_URI
         // Set the parameters Reddit requires in the POST request's body
         val parameters = "grant_type=$GET_NEW_TOKEN&code=$exchangeCode&redirect_uri=$redirectUri"
-
-        // These are needed for the "Authorization" header of the request.
-        val clientId: String = RegisteredAppInformation.CLIENT_ID
-        val clientSecret: String = FileSecretReader.getClientSecret()
-        // This is the value that will accompany the "Authorization" header.
-        val basicAuth: String = HttpBasicAuthGetter.getBasicAuth(clientId, clientSecret)
-
-        // All the requirements have been fulfilled, time to make the request.
-        val retrofit = RetrofitBuilder(BASE_URL)
-        val authService = retrofit.authorizationService
         // The parameters won't work if send as a plain string, they need to be converted.
-        val postParameters: RequestBody = parameters.toRequestBody("text/plain".toMediaTypeOrNull())
-        val call = authService.getAccessToken(basicAuth, postParameters)
+        return parameters.toRequestBody("text/plain".toMediaTypeOrNull())
+    }
 
-        var accessToken: AccessToken? = null
-
+    /**
+     * Makes a POST request to Reddit asking for an access token.
+     * @param httpBasicAuth Needed for the "Authorization" header of the request. See [HttpBasicAuthFormatter].
+     * @param parameters See [getNewRequestParameters]
+     * @return An [AccessToken] if the response is successful, null otherwise.
+     */
+    private fun requestNewAccessToken(httpBasicAuth: String, parameters: RequestBody): AccessToken? {
+        val retrofit = RetrofitBuilder(BASE_URL)
+        val authorizationService = retrofit.authorizationService
+        val call = authorizationService.getAccessToken(httpBasicAuth, parameters)
+        // Send the request synchronously.
         val response = call.execute()
-        if (response.isSuccessful) {
+        return if (response.isSuccessful) {
             Logger.log(TAG, "Successful response.")
-            accessToken = response.body()
+            response.body()
         } else {
             Logger.log(TAG, "Error during authorization request. ${response.message()}")
+            null
         }
-
-        return accessToken
     }
+
 
 //    /**
 //     * Prompts the user for authorization, parsers the redirect user for the access code, exchanges it for an access token,

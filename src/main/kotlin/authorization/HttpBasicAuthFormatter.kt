@@ -15,7 +15,7 @@ import java.util.*
  * In practice, you will use this object to obtain the value that goes with the HTTP header
  * "Authorization" when making a request for an access token for the first time.
  */
-object HttpBasicAuthGetter {
+object HttpBasicAuthFormatter {
 
     /**
      * @return The proper value to pair with an "Authorization" header when making a
