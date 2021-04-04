@@ -71,7 +71,7 @@ object AccessTokenManager {
      * @return An [AccessToken] if the response is successful, null otherwise.
      */
     private fun requestAccessToken(httpBasicAuth: String, parameters: RequestBody): AccessToken? {
-        Logger.log(TAG, "Making a POST request to Reddit.")
+        Logger.log(TAG, "Making a POST request to Reddit...")
         val retrofit = RetrofitBuilder(BASE_URL)
         val authorizationService = retrofit.authorizationService
         val call = authorizationService.getAccessToken(httpBasicAuth, parameters)
@@ -89,7 +89,7 @@ object AccessTokenManager {
 
     fun refreshAccessToken() {
         Logger.log(TAG, "Refreshing access token.")
-        val refreshToken = getRefreshToken()
+        val refreshToken = getSavedToken().refreshToken
         checkNotNull(refreshToken) {Logger.log(TAG, "No refresh token found.")}
 
         val httpBasicAuth = getHttpBasicAuth()
@@ -105,8 +105,7 @@ object AccessTokenManager {
      * Gets the current refresh token from a file on disk.
      * @return The refresh token if it exists, null otherwise.
      */
-    private fun getRefreshToken(): String? {
-        val accessToken = FileTokenManager.getAccessTokenFromFile()
-        return accessToken.refreshToken
+    fun getSavedToken(): AccessToken {
+        return FileTokenManager.getAccessTokenFromFile()
     }
 }

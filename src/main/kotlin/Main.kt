@@ -11,9 +11,7 @@ import retrofit2.Callback
 import retrofit2.Response
 
 fun main() {
-    AccessTokenManager.refreshAccessToken()
-    val accessToken = FileTokenManager.getAccessTokenFromFile()
-    println(accessToken)
+    AccessTokenExpirationWatchdog.checkAccessTokenExpiration(1800)
 }
 //
 //fun test() = runBlocking {

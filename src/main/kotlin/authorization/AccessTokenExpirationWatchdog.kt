@@ -1,6 +1,6 @@
 package authorization
 
-import file.FileTokenManager
+import Logger
 import kotlinx.coroutines.delay
 
 /**
@@ -9,24 +9,27 @@ import kotlinx.coroutines.delay
  */
 object AccessTokenExpirationWatchdog {
 
+    private val TAG = javaClass.simpleName
+
+    fun checkAccessTokenExpiration(expirationThreshold: Int) {
+        Logger.log(TAG, "Checking access token for expiration.")
+        val accessToken = AccessTokenManager.getSavedToken()
+        if (accessToken.getSecondsTillExpiration() <= expirationThreshold) {
+            Logger.log(TAG, "Token under threshold! Refreshing token.")
+            AccessTokenManager.refreshAccessToken()
+        } else
+            Logger.log(TAG, "No need to refresh.")
+    }
+
     /**
      * Monitors the currently used access token every [checkThreshold] in milliseconds. If the number of
-     * seconds till the access token expires are below of equal to [refreshThreshold] in seconds, then
+     * seconds till the access token expires are below of equal to [expirationThreshold] in seconds, then
      * the access token will be refreshed.
      */
-//    suspend fun monitorAccessTokenExpiration(refreshThreshold: Int, checkThreshold: Long) {
-//        while (true) {
-//            println("\nAccessTokenWatchdog on duty!")
-//            val accessToken = FileTokenManager.getAccessTokenFromFile()
-//
-//            println("Checking if the access token should be refreshed...")
-//            if (accessToken.getSecondsTillExpiration() <= refreshThreshold) {
-//                println("It should! Refreshing access token!")
-//                AccessTokenManager.refreshCurrentAccessToken()
-//            } else
-//                println("It should not. Taking a nap...")
-//
-//            delay(checkThreshold)
-//        }
-//    }
+    suspend fun monitorAccessTokenExpiration(expirationThreshold: Int, checkThreshold: Long) {
+        while (true) {
+            checkAccessTokenExpiration(expirationThreshold)
+            delay(checkThreshold)
+        }
+    }
 }

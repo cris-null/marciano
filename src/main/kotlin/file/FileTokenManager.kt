@@ -18,7 +18,7 @@ object FileTokenManager {
 
         val jsonString = jsonParser.encodeToString(accessToken)
 
-        Logger.log(TAG, " Writing access token to disk...")
+        Logger.log(TAG, "Writing access token to disk...")
         File(ACCESS_TOKEN_FILEPATH).writeText(jsonString)
         println("${TAG}: OK")
     }
