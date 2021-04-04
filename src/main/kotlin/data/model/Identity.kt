@@ -1,7 +1,8 @@
 package data.model
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
 
 /**
  * The identity of the user.
@@ -9,7 +10,7 @@ import com.squareup.moshi.JsonClass
  * Endpoint: /api/v1/me
  * Scope: identity
  */
-@JsonClass(generateAdapter = true)
+@Serializable
 data class Identity(
     val name: String,
     /**
@@ -17,8 +18,8 @@ data class Identity(
      * Epoch seconds.
      */
     val created: Long,
-    @Json(name = "comment_karma")
+    @SerialName("comment_karma")
     val commentKarma: Long,
-    @Json(name = "link_karma")
+    @SerialName("link_karma")
     val linkKarma: Long,
 )

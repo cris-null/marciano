@@ -12,6 +12,8 @@ import retrofit2.Response
 
 fun main() {
     AccessTokenManager.refreshAccessToken()
+    val accessToken = FileTokenManager.getAccessTokenFromFile()
+    println(accessToken)
 }
 //
 //fun test() = runBlocking {

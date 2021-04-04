@@ -1,7 +1,9 @@
 package data.model
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 /**
  * Data class that represent the response send by Reddit when you successfully
@@ -18,15 +20,37 @@ import com.squareup.moshi.JsonClass
  * This means that this single can handle both kinds of authorization response, those that contain
  * a refresh token, and those that don't.
  */
-@JsonClass(generateAdapter = true)
-data class AccessToken(
-    @Json(name = "access_token")
+@Serializable
+class AccessToken(
+    @SerialName("access_token")
     val accessToken: String,
-    @Json(name = "token_type")
+    @SerialName("token_type")
     val tokenType: String,
-    @Json(name = "expires_in")
-    val secondsTillExpiration: Int,
-    @Json(name = "refresh_token")
-    val refreshToken: String?,
+    @SerialName("expires_in")
+    val duration: Int,
+    @SerialName("refresh_token")
+    val refreshToken: String? = null,
     val scope: String
-)
+) {
+
+    @SerialName("retrieved_at")
+    val retrievedAt = getCurrentTimestamp()
+
+    /** Returns how many seconds remain till this token expires */
+    fun getSecondsTillExpiration(): Long = getExpirationTimestamp() - getCurrentTimestamp()
+
+    /** Returns the moment when this token will expire in seconds since the epoch. */
+    private fun getExpirationTimestamp(): Long = retrievedAt + duration
+
+    /** Returns the current number of seconds since the epoch. */
+    private fun getCurrentTimestamp(): Long {
+        val now = LocalDateTime.now(ZoneOffset.UTC)
+        return now.atZone(ZoneOffset.UTC).toEpochSecond()
+    }
+
+    override fun toString(): String {
+        return "AccessToken(accessToken=$accessToken, tokenType=$tokenType, " +
+                "duration=$duration, refreshToken=$refreshToken, " +
+                "scope=$scope, retrievedAt=$retrievedAt"
+    }
+}

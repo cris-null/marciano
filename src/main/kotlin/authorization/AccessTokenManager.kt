@@ -26,7 +26,8 @@ object AccessTokenManager {
 
     private val TAG = javaClass.simpleName
 
-    fun getNewAccessToken() {
+    /** Retrieves an access token using the standard "code flow". */
+    fun codeFlowAuthorization() {
         val redirectUriResult = UserAuthorizationRequester.request()
         check(redirectUriResult is RedirectUriResult.Success) {
             Logger.log(TAG, "Bad redirect URI. " +
@@ -107,10 +108,5 @@ object AccessTokenManager {
     private fun getRefreshToken(): String? {
         val accessToken = FileTokenManager.getAccessTokenFromFile()
         return accessToken.refreshToken
-    }
-
-    fun getAccessToken(): String {
-        val accessToken = FileTokenManager.getAccessTokenFromFile()
-        return accessToken.accessToken
     }
 }
