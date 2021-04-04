@@ -1,19 +1,19 @@
 package data.api
 
-import com.squareup.moshi.Moshi
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
 
-object RetrofitBuilder{
+class RetrofitBuilder(baseUrl: String) {
 
-    private const val BASE_URL = "https://oauth.reddit.com"
-
-    private fun getRetrofit(): Retrofit {
-        return Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(MoshiConverterFactory.create())
+    private val contentType = "application/json".toMediaType()
+    val retrofit: Retrofit =
+        Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .addConverterFactory(Json.asConverterFactory(contentType))
             .build()
-    }
 
-    val identityService: ApiService = getRetrofit().create(ApiService::class.java)
+    val identityService: IdentityService by lazy { retrofit.create(IdentityService::class.java) }
+    val authorizationService: AuthorizationService by lazy { retrofit.create(AuthorizationService::class.java) }
 }

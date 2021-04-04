@@ -1,6 +1,11 @@
 ### I wrote this myself ###
 # A temp file where I store refresh tokens for testing
-refresh_token.txt
+access_token.txt
+
+# A temp file where I store my app's secret. Since it's a testing
+# app that I will delete later it should matter if it's in the code,
+# but I want to refactor how the secret is input in the app.
+secret.txt
 
 ### ###
 

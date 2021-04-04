@@ -1,36 +1,35 @@
 package file
 
-import com.beust.klaxon.Klaxon
-import net.AccessToken
-import net.TokenResponseJsonRenamer
+import Logger
+import data.jsonParser
+import data.model.AccessToken
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import java.io.File
 
 object FileTokenManager {
 
-    private const val REFRESH_TOKEN_FILEPATH = "refresh_token.txt"
-    private val TAG = "${FileTokenManager::class.simpleName}"
+    private val TAG = javaClass.simpleName
+    private const val ACCESS_TOKEN_FILEPATH = "access_token.txt"
 
     fun saveAccessTokenToFile(accessToken: AccessToken) {
-        val refreshTokenFile = File(REFRESH_TOKEN_FILEPATH)
+        val refreshTokenFile = File(ACCESS_TOKEN_FILEPATH)
         if (refreshTokenFile.exists()) require(refreshTokenFile.canWrite())
 
-        // Takes the refresh token response and converts it to a JSON string, using the proper renamer so that the string uses
-        // underscores as it's a Reddit convention.
-        val jsonString = Klaxon().fieldRenamer(TokenResponseJsonRenamer).toJsonString(accessToken).toPrettyJson()
-        println("${TAG}: Writing refresh token to file.")
-        File(REFRESH_TOKEN_FILEPATH).writeText(jsonString)
+        val jsonString = jsonParser.encodeToString(accessToken)
+
+        Logger.log(TAG, " Writing access token to disk...")
+        File(ACCESS_TOKEN_FILEPATH).writeText(jsonString)
         println("${TAG}: OK")
     }
 
     fun getAccessTokenFromFile(): AccessToken {
-        val refreshTokenFile = File(REFRESH_TOKEN_FILEPATH)
-        require(refreshTokenFile.exists()) { "${TAG}: No refresh tokens have been saved to a file yet." }
+        val refreshTokenFile = File(ACCESS_TOKEN_FILEPATH)
+        require(refreshTokenFile.exists()) { Logger.log(TAG, "No refresh tokens have been saved to a file yet.") }
 
-        println("${TAG}: Reading refresh token from file.")
-        val fileText = File(REFRESH_TOKEN_FILEPATH).readText()
+        Logger.log(TAG, "Reading refresh token from file.")
+        val fileText = File(ACCESS_TOKEN_FILEPATH).readText()
 
-        val accessToken = Klaxon().fieldRenamer(TokenResponseJsonRenamer).parse<AccessToken>(fileText)
-        checkNotNull(accessToken)
-        return accessToken
+        return jsonParser.decodeFromString(fileText)
     }
 }
