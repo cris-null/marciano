@@ -5,7 +5,6 @@ import constant.RegisteredAppInformation
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
-import retrofit2.create
 
 object ServiceBuilder {
 
