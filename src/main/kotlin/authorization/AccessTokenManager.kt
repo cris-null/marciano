@@ -2,8 +2,8 @@ package authorization
 
 import Logger
 import constant.RegisteredAppInformation
-import data.api.RetrofitBuilder
-import data.model.AccessToken
+import data.net.api.RetrofitBuilder
+import data.net.model.AccessToken
 import file.FileSecretReader
 import file.FileTokenManager
 import net.RedirectUriResult

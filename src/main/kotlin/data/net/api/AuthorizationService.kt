@@ -1,9 +1,7 @@
-package data.api
+package data.net.api
 
-import data.model.AccessToken
-import kotlinx.coroutines.Deferred
+import data.net.model.AccessToken
 import okhttp3.RequestBody
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Header
