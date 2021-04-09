@@ -1,8 +1,10 @@
 package data.api
 
 import data.model.AccessToken
+import kotlinx.coroutines.Deferred
 import okhttp3.RequestBody
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Header
 import retrofit2.http.Headers
@@ -51,8 +53,8 @@ interface AuthorizationService {
      *
      * String(Base64.getEncoder().encode(myString.toByteArray()))
      */
-    fun getAccessToken(
+    suspend fun getAccessToken(
         @Header("Authorization") httpBasicAuth: String,
         @Body parameters: RequestBody
-    ): Call<AccessToken>
+    ): Response<AccessToken>
 }

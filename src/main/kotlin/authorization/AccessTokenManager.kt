@@ -10,6 +10,7 @@ import net.RedirectUriResult
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.Response
 
 object AccessTokenManager {
 
@@ -21,17 +22,20 @@ object AccessTokenManager {
      * Used when requesting a new access token after being granted authorization by the user.
      */
     private const val GET_NEW_TOKEN = "authorization_code"
+
     /** grant_type that indicates you're requesting a new access token using a refresh token */
     private const val GET_REFRESHED_TOKEN = "refresh_token"
 
     private val TAG = javaClass.simpleName
 
     /** Retrieves an access token using the standard "code flow". */
-    fun codeFlowAuthorization() {
+    suspend fun codeFlowAuthorization() {
         val redirectUriResult = UserAuthorizationRequester.request()
         check(redirectUriResult is RedirectUriResult.Success) {
-            Logger.log(TAG, "Bad redirect URI. " +
-                    "Message = ${(redirectUriResult as RedirectUriResult.Error).message}")
+            Logger.log(
+                TAG, "Bad redirect URI. " +
+                        "Message = ${(redirectUriResult as RedirectUriResult.Error).message}"
+            )
         }
 
         val httpBasicAuth = getHttpBasicAuth()
@@ -70,27 +74,33 @@ object AccessTokenManager {
      * @param parameters See [getNewRequestParameters]
      * @return An [AccessToken] if the response is successful, null otherwise.
      */
-    private fun requestAccessToken(httpBasicAuth: String, parameters: RequestBody): AccessToken? {
+    private suspend fun requestAccessToken(httpBasicAuth: String, parameters: RequestBody): AccessToken? {
         Logger.log(TAG, "Making a POST request to Reddit...")
         val retrofit = RetrofitBuilder(BASE_URL)
         val authorizationService = retrofit.authorizationService
-        val call = authorizationService.getAccessToken(httpBasicAuth, parameters)
-        // Send the request synchronously.
-        val response = call.execute()
-        return if (response.isSuccessful) {
-            Logger.log(TAG, "Successful response.")
-            response.body()
-        } else {
-            Logger.log(TAG, "Error during authorization request. ${response.message()}")
-            null
+        val response: Response<AccessToken> = authorizationService.getAccessToken(httpBasicAuth, parameters)
+
+        // Send the request asynchronously
+        // Has to be inside a try block because the connection could fail.
+        try {
+            if (response.isSuccessful) {
+                Logger.log(TAG, "Successful response.")
+                return response.body()
+            } else {
+                Logger.log(TAG, "Error: ${response.code()}")
+            }
+        } catch (t: Throwable) {
+            Logger.log(TAG, "Error during authorization request. ${t.message}")
         }
+
+        return null
     }
 
 
-    fun refreshAccessToken() {
+    suspend fun refreshAccessToken() {
         Logger.log(TAG, "Refreshing access token.")
         val refreshToken = getSavedToken().refreshToken
-        checkNotNull(refreshToken) {Logger.log(TAG, "No refresh token found.")}
+        checkNotNull(refreshToken) { Logger.log(TAG, "No refresh token found.") }
 
         val httpBasicAuth = getHttpBasicAuth()
         val parameters = "grant_type=$GET_REFRESHED_TOKEN&refresh_token=$refreshToken"
