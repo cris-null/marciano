@@ -5,15 +5,20 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
 
-class RetrofitBuilder(baseUrl: String) {
+object ServiceBuilder {
 
+    // Required to enable Kotlin serialization with Retrofit
     private val contentType = "application/json".toMediaType()
-    val retrofit: Retrofit =
-        Retrofit.Builder()
+
+    private fun buildRetrofit(baseUrl: String): Retrofit {
+        return Retrofit.Builder()
             .baseUrl(baseUrl)
+            // Required to enable Kotlin serialization with Retrofit
             .addConverterFactory(Json.asConverterFactory(contentType))
             .build()
+    }
 
-    val identityService: IdentityService by lazy { retrofit.create(IdentityService::class.java) }
-    val authorizationService: AuthorizationService by lazy { retrofit.create(AuthorizationService::class.java) }
+    fun <T> buildService(baseUrl: String, service: Class<T>): T {
+        return buildRetrofit(baseUrl).create(service)
+    }
 }
