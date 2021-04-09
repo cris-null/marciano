@@ -1,4 +1,4 @@
-package data.model
+package data.net.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

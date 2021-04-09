@@ -1,12 +1,9 @@
-package data.api
+package data.net.api
 
-import data.model.Identity
-import kotlinx.coroutines.Deferred
+import data.net.model.Identity
 import retrofit2.Call
-import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
-import retrofit2.http.Path
 
 
 interface IdentityService {

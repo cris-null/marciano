@@ -2,8 +2,9 @@ package authorization
 
 import Logger
 import constant.RegisteredAppInformation
-import data.api.RetrofitBuilder
-import data.model.AccessToken
+import data.net.api.AuthorizationService
+import data.net.ServiceBuilder
+import data.net.model.AccessToken
 import file.FileSecretReader
 import file.FileTokenManager
 import net.RedirectUriResult
@@ -13,9 +14,6 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Response
 
 object AccessTokenManager {
-
-    /** For request that do not require a token */
-    private const val BASE_URL = "https://www.reddit.com"
 
     /**
      * grant_type that indicates that you're using the "standard" code based flow.
@@ -76,21 +74,20 @@ object AccessTokenManager {
      */
     private suspend fun requestAccessToken(httpBasicAuth: String, parameters: RequestBody): AccessToken? {
         Logger.log(TAG, "Making a POST request to Reddit...")
-        val retrofit = RetrofitBuilder(BASE_URL)
-        val authorizationService = retrofit.authorizationService
+        val authorizationService = ServiceBuilder.buildService(AuthorizationService::class.java, isUsingOauth = false)
         val response: Response<AccessToken> = authorizationService.getAccessToken(httpBasicAuth, parameters)
 
         // Send the request asynchronously
         // Has to be inside a try block because the connection could fail.
         try {
             if (response.isSuccessful) {
-                Logger.log(TAG, "Successful response.")
+                Logger.log(TAG, "Successful response")
                 return response.body()
             } else {
-                Logger.log(TAG, "Error: ${response.code()}")
+                Logger.log(TAG, "Error during authorization request: ${response.code()}")
             }
         } catch (t: Throwable) {
-            Logger.log(TAG, "Error during authorization request. ${t.message}")
+            Logger.log(TAG, "Error during authorization request: ${t.message}")
         }
 
         return null
@@ -98,9 +95,9 @@ object AccessTokenManager {
 
 
     suspend fun refreshAccessToken() {
-        Logger.log(TAG, "Refreshing access token.")
+        Logger.log(TAG, "Refreshing access token")
         val refreshToken = getSavedToken().refreshToken
-        checkNotNull(refreshToken) { Logger.log(TAG, "No refresh token found.") }
+        checkNotNull(refreshToken) { Logger.log(TAG, "No refresh token found") }
 
         val httpBasicAuth = getHttpBasicAuth()
         val parameters = "grant_type=$GET_REFRESHED_TOKEN&refresh_token=$refreshToken"
