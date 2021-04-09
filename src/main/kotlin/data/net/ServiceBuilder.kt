@@ -5,7 +5,6 @@ import constant.RegisteredAppInformation
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
-import retrofit2.create
 
 object ServiceBuilder {
 
@@ -19,7 +18,8 @@ object ServiceBuilder {
         return Retrofit.Builder()
             .baseUrl(baseUrl)
             // Required to enable Kotlin serialization with Retrofit
-            .addConverterFactory(Json.asConverterFactory(contentType))
+            // Note that I'm using a custom JSON configuration that is more lenient
+            .addConverterFactory(jsonParser.asConverterFactory(contentType))
             .build()
     }
 

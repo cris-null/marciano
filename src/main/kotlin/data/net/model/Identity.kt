@@ -13,11 +13,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Identity(
     val name: String,
-    /**
-     * When the account was created, in Unix
-     * Epoch seconds.
-     */
-    val created: Long,
     @SerialName("comment_karma")
     val commentKarma: Long,
     @SerialName("link_karma")
