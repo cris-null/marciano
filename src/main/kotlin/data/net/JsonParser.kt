@@ -1,4 +1,4 @@
-package data
+package data.net
 
 import kotlinx.serialization.json.Json
 

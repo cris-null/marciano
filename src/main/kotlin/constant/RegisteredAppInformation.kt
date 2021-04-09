@@ -50,8 +50,10 @@ object RegisteredAppInformation {
      */
     const val SCOPE = "identity,history"
 
-    /**
-     * The app's secret given by Reddit. It doesn't matter that I put it here for now, as this is just for a test script.
-     */
-    const val SECRET = "BZWTcwHcxZ2kVm3EP_AhBS4C_vSr9Q"
+
+    /** For request that do not require a token */
+    const val BASE_URL = "https://www.reddit.com"
+
+    /** For requests that require a bearer token */
+    const val OAUTH_URL = "https://oauth.reddit.com"
 }

@@ -1,7 +1,7 @@
 package file
 
 import Logger
-import data.jsonParser
+import data.net.jsonParser
 import data.net.model.AccessToken
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
