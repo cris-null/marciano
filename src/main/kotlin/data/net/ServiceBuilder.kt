@@ -18,7 +18,8 @@ object ServiceBuilder {
         return Retrofit.Builder()
             .baseUrl(baseUrl)
             // Required to enable Kotlin serialization with Retrofit
-            .addConverterFactory(Json.asConverterFactory(contentType))
+            // Note that I'm using a custom JSON configuration that is more lenient
+            .addConverterFactory(jsonParser.asConverterFactory(contentType))
             .build()
     }
 
