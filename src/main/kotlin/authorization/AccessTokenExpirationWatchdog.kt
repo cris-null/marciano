@@ -11,7 +11,7 @@ object AccessTokenExpirationWatchdog {
 
     private val TAG = javaClass.simpleName
 
-    fun checkAccessTokenExpiration(expirationThreshold: Int) {
+    suspend fun checkAccessTokenExpiration(expirationThreshold: Int) {
         Logger.log(TAG, "Checking access token for expiration.")
         val accessToken = AccessTokenManager.getSavedToken()
         if (accessToken.getSecondsTillExpiration() <= expirationThreshold) {
