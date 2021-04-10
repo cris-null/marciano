@@ -3,7 +3,7 @@ package data.net.helper
 import data.net.ServiceBuilder
 import data.net.api.IdentityService
 import data.net.model.Identity
-import data.net.model.TrophyList
+import data.net.model.TrophyResponse
 import retrofit2.Response
 
 object IdentityHelper {
@@ -13,5 +13,5 @@ object IdentityHelper {
     }
 
     suspend fun getIdentity(authorization: String): Response<Identity> = identity.getIdentity(authorization)
-    suspend fun getTrophies(authorization: String): Response<TrophyList> = identity.getTrophies(authorization)
+    suspend fun getTrophies(authorization: String): Response<TrophyResponse> = identity.getTrophies(authorization)
 }

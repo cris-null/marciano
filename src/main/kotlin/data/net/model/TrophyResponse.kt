@@ -9,12 +9,17 @@ import kotlinx.serialization.json.*
  * The response received from this endpoint is a list of trophy objects.
  */
 @Serializable
-data class TrophyList(
+data class TrophyResponse(
+    // Uses a custom serializer better target the wanted data.
     @Serializable(with = TrophyListSerializer::class)
     @SerialName("data")
     val trophies: List<Trophy>
 )
 
+/**
+ * Each individual trophy. Note: not all elements are listed here. This model
+ * can be expanded.
+ */
 @Serializable
 data class Trophy(
     @SerialName("icon_70")
@@ -41,10 +46,12 @@ object TrophyListSerializer : JsonTransformingSerializer<List<Trophy>>(ListSeria
                 // [TrophyList] wants a List of [Trophy]
                 val trophyData = mutableListOf<JsonElement>()
                 trophies.forEach {
-                    // The information for each [Trophy] is inside the "data" object
+                    // The information for each [Trophy] is inside the "data" object.
                     trophyData.add(it.jsonObject["data"]!!)
                 }
-                // By returning a [JsonArray] you will automatically get a list of those elements (Trophy)
+                // By returning a [JsonArray] you will automatically get a list of those elements, no need
+                // to do anything else. The serializer already knows how to convert each element in the array
+                // into a [Trophy].
                 return JsonArray(trophyData.toList())
             }
         }

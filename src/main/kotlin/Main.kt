@@ -1,11 +1,7 @@
 import authorization.AccessTokenExpirationWatchdog
 import data.net.helper.IdentityHelper
-import data.net.jsonParser
-import data.net.model.TrophyList
 import file.FileTokenManager
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 
 fun main() = runBlocking {
     AccessTokenExpirationWatchdog.checkAccessTokenExpiration(1800)
