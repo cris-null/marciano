@@ -1,8 +1,7 @@
 package data.net.api
 
 import data.net.model.Identity
-import okhttp3.ResponseBody
-import retrofit2.Call
+import data.net.model.TrophyResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -23,5 +22,5 @@ interface IdentityService {
         "User-Agent: marciano Kotlin/1.4"
     )
     @GET("/api/v1/me/trophies")
-    suspend fun getTrophies(@Header("Authorization") authorization: String): Response<ResponseBody>
+    suspend fun getTrophies(@Header("Authorization") authorization: String): Response<TrophyResponse>
 }
