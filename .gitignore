@@ -7,6 +7,9 @@ access_token.txt
 # but I want to refactor how the secret is input in the app.
 secret.txt
 
+# A temp file where I store large JSON responses to analyse them.
+response.json
+
 ### ###
 
 # Created by https://www.toptal.com/developers/gitignore/api/android,androidstudio,java,kotlin,intellij
