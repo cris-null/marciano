@@ -1,4 +1,4 @@
-package data.net
+package net
 
 import kotlinx.serialization.json.Json
 
@@ -14,7 +14,7 @@ import kotlinx.serialization.json.Json
  *
  * ignoreUnknownKeys = true
  */
-val jsonParser = Json {
+val configuredJson = Json {
     // Without this, class properties with default
     // will not be serialized
     encodeDefaults = true

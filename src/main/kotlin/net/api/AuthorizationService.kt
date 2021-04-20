@@ -1,6 +1,6 @@
-package data.net.api
+package net.api
 
-import data.net.model.AccessToken
+import net.model.AccessToken
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Body

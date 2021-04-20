@@ -1,35 +1,30 @@
 package file
 
-import Logger
-import data.net.jsonParser
-import data.net.model.AccessToken
+import net.configuredJson
+import net.model.AccessToken
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import java.io.File
 
-object FileTokenManager {
+private const val ACCESS_TOKEN_FILEPATH = "access_token.txt"
 
-    private val TAG = javaClass.simpleName
-    private const val ACCESS_TOKEN_FILEPATH = "access_token.txt"
+fun loadToken(): AccessToken {
+    val refreshTokenFile = File(ACCESS_TOKEN_FILEPATH)
+    require(refreshTokenFile.exists()) { "No refresh tokens have been saved to a file yet." }
 
-    fun saveAccessTokenToFile(accessToken: AccessToken) {
-        val refreshTokenFile = File(ACCESS_TOKEN_FILEPATH)
-        if (refreshTokenFile.exists()) require(refreshTokenFile.canWrite())
+    println("Reading refresh token from file.")
+    val fileText = File(ACCESS_TOKEN_FILEPATH).readText()
 
-        val jsonString = jsonParser.encodeToString(accessToken)
+    return configuredJson.decodeFromString(fileText)
+}
 
-        Logger.log(TAG, "Writing access token to disk...")
-        File(ACCESS_TOKEN_FILEPATH).writeText(jsonString)
-        println("${TAG}: OK")
-    }
+fun saveToken(accessToken: AccessToken) {
+    val refreshTokenFile = File(ACCESS_TOKEN_FILEPATH)
+    if (refreshTokenFile.exists()) require(refreshTokenFile.canWrite())
 
-    fun getAccessTokenFromFile(): AccessToken {
-        val refreshTokenFile = File(ACCESS_TOKEN_FILEPATH)
-        require(refreshTokenFile.exists()) { Logger.log(TAG, "No refresh tokens have been saved to a file yet.") }
+    val jsonString = configuredJson.encodeToString(accessToken)
 
-        Logger.log(TAG, "Reading refresh token from file.")
-        val fileText = File(ACCESS_TOKEN_FILEPATH).readText()
-
-        return jsonParser.decodeFromString(fileText)
-    }
+    println("Saving token to file.")
+    File(ACCESS_TOKEN_FILEPATH).writeText(jsonString)
+    println("Token saved.")
 }

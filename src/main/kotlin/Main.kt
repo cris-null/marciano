@@ -1,14 +1,22 @@
-import authorization.AccessTokenExpirationWatchdog
-import data.net.helper.IdentityHelper
-import file.FileTokenManager
+import authorization.checkAccessTokenExpiration
+import authorization.codeFlowAuthorization
+import file.loadToken
 import kotlinx.coroutines.runBlocking
+import net.helper.getTrophies
 
 fun main() = runBlocking {
-    AccessTokenExpirationWatchdog.checkAccessTokenExpiration(1800)
+    checkAccessTokenExpiration(1800)
 
-    val accessToken = FileTokenManager.getAccessTokenFromFile().accessToken
-    val auth = "Bearer $accessToken"
-    val response = IdentityHelper.getTrophies(auth)
+
+    codeFlowAuthorization()
+
+    // ==============================================
+    // GETTING TROPHIES TEST
+    // ==============================================
+
+    val accessToken: String = loadToken().accessToken
+    val authorizationParameter = "Bearer $accessToken"
+    val response = getTrophies(authorizationParameter)
     if (response.isSuccessful) {
         val trophies = response.body()
         println(trophies)
