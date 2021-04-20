@@ -23,7 +23,7 @@ private const val GET_NEW_TOKEN = "authorization_code"
 /** grant_type that indicates you're requesting a new access token using a refresh token */
 private const val GET_REFRESHED_TOKEN = "refresh_token"
 
-/** Retrieves an access token using the standard "code flow". */
+/** Retrieves an access token using the standard "code flow". Will save the token to a file on disk. */
 suspend fun codeFlowAuthorization() {
     val redirectUriResult = requestAuthorization()
     check(redirectUriResult is RedirectUriResult.Success) { "Bad redirect URI. Message = ${(redirectUriResult as RedirectUriResult.Error).message}" }
@@ -87,7 +87,7 @@ private suspend fun requestAccessToken(httpBasicAuth: String, parameters: Reques
 suspend fun refreshAccessToken() {
     println("Refreshing access token")
     val refreshToken = getSavedToken().refreshToken
-    checkNotNull(refreshToken) {"No refresh token found"}
+    checkNotNull(refreshToken) { "No refresh token found" }
 
     val httpBasicAuth = getHttpBasicAuth()
     val parameters = "grant_type=$GET_REFRESHED_TOKEN&refresh_token=$refreshToken"
