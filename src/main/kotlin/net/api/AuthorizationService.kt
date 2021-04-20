@@ -1,6 +1,6 @@
 package net.api
 
-import net.makeUserAgent
+import net.genUserAgent
 import net.model.AccessToken
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -52,7 +52,7 @@ interface AuthorizationService {
      * String(Base64.getEncoder().encode(myString.toByteArray()))
      */
     suspend fun getAccessToken(
-        @Header("User-Agent") userAgent: String = makeUserAgent(),
+        @Header("User-Agent") userAgent: String = genUserAgent(),
         @Header("Authorization") httpBasicAuth: String,
         @Body parameters: RequestBody,
     ): Response<AccessToken>
