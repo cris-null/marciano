@@ -45,7 +45,7 @@ const val DURATION = "permanent"
  * identity, edit, flair, history, modconfig, modflair, modlog, modposts, modwiki, mysubreddits,
  * privatemessages, read, report, save, submit, subscribe, vote, wikiedit, wikiread.
  */
-const val SCOPE = "identity,history"
+const val SCOPE = "identity,history,read"
 
 /** For request that do not require a token */
 const val BASE_URL = "https://www.reddit.com"
