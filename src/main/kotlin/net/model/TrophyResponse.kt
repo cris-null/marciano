@@ -32,11 +32,14 @@ data class Trophy(
 /**
  * The JSON response contains a lot of filler that you don't want. This custom serializer jumps straight to the
  * data of each individual trophy, collects it, and returns it as a [JsonArray].
+ *
+ * To better understand how this custom serializer works, check the wiki for an example of the response it
+ * works with.
  */
 object TrophyListSerializer : JsonTransformingSerializer<List<Trophy>>(ListSerializer(Trophy.serializer())) {
 
     override fun transformDeserialize(element: JsonElement): JsonElement {
-        // [TrophyList] sends you straight to the the "data" element, which is a JSON object
+        // [TrophyResponse]'s [trophies] sends you straight to the the "data" element, which is a JSON object
         // that contains 1 element: an array called "trophies".
         if (element is JsonObject) {
             val trophies: JsonElement = element["trophies"]!!
