@@ -8,7 +8,6 @@ fun main() = runBlocking {
     checkAccessTokenExpiration(1800)
 
 
-    codeFlowAuthorization()
 
     // ==============================================
     // GETTING TROPHIES TEST
