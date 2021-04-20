@@ -1,10 +1,11 @@
 package authorization
 
+import file.loadToken
 import kotlinx.coroutines.delay
 
 suspend fun checkAccessTokenExpiration(expirationThreshold: Int) {
     println("Checking access token for expiration.")
-    val accessToken = getSavedToken()
+    val accessToken = loadToken()
     if (accessToken.getSecondsTillExpiration() <= expirationThreshold) {
         println("Token under threshold! Refreshing token.")
         refreshAccessToken()

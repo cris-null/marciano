@@ -86,7 +86,7 @@ private suspend fun requestAccessToken(httpBasicAuth: String, parameters: Reques
 
 suspend fun refreshAccessToken() {
     println("Refreshing access token")
-    val refreshToken = getSavedToken().refreshToken
+    val refreshToken = loadToken().refreshToken
     checkNotNull(refreshToken) { "No refresh token found" }
 
     val httpBasicAuth = getHttpBasicAuth()
@@ -96,12 +96,4 @@ suspend fun refreshAccessToken() {
     val accessToken = requestAccessToken(httpBasicAuth, parameters)
     checkNotNull(accessToken)
     saveToken(accessToken)
-}
-
-/**
- * Gets the current refresh token from a file on disk.
- * @return The refresh token if it exists, null otherwise.
- */
-fun getSavedToken(): AccessToken {
-    return loadToken()
 }
