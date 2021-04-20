@@ -1,118 +1,107 @@
 package authorization
 
-import Logger
-import constant.RegisteredAppInformation
-import data.net.api.AuthorizationService
-import data.net.ServiceBuilder
-import data.net.model.AccessToken
-import file.FileSecretReader
-import file.FileTokenManager
+import constant.CLIENT_ID
+import constant.REDIRECT_URI
+import net.api.AuthorizationService
+import net.model.AccessToken
+import file.loadClientSecret
+import file.loadToken
+import file.saveToken
 import net.RedirectUriResult
+import net.buildService
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Response
 
-object AccessTokenManager {
+/**
+ * grant_type that indicates that you're using the "standard" code based flow.
+ * Used when requesting a new access token after being granted authorization by the user.
+ */
+private const val GET_NEW_TOKEN = "authorization_code"
 
-    /**
-     * grant_type that indicates that you're using the "standard" code based flow.
-     * Used when requesting a new access token after being granted authorization by the user.
-     */
-    private const val GET_NEW_TOKEN = "authorization_code"
+/** grant_type that indicates you're requesting a new access token using a refresh token */
+private const val GET_REFRESHED_TOKEN = "refresh_token"
 
-    /** grant_type that indicates you're requesting a new access token using a refresh token */
-    private const val GET_REFRESHED_TOKEN = "refresh_token"
+/** Retrieves an access token using the standard "code flow". */
+suspend fun codeFlowAuthorization() {
+    val redirectUriResult = requestAuthorization()
+    check(redirectUriResult is RedirectUriResult.Success) { "Bad redirect URI. Message = ${(redirectUriResult as RedirectUriResult.Error).message}" }
 
-    private val TAG = javaClass.simpleName
+    val httpBasicAuth = getHttpBasicAuth()
+    val requestParameters = getNewRequestParameters(redirectUriResult)
+    val accessToken = requestAccessToken(httpBasicAuth, requestParameters)
+    checkNotNull(accessToken)
+    saveToken(accessToken)
+}
 
-    /** Retrieves an access token using the standard "code flow". */
-    suspend fun codeFlowAuthorization() {
-        val redirectUriResult = UserAuthorizationRequester.request()
-        check(redirectUriResult is RedirectUriResult.Success) {
-            Logger.log(
-                TAG, "Bad redirect URI. " +
-                        "Message = ${(redirectUriResult as RedirectUriResult.Error).message}"
-            )
+/** Needed for the "Authorization" header of the request. */
+private fun getHttpBasicAuth(): String {
+    val clientId: String = CLIENT_ID
+    val clientSecret: String = loadClientSecret()
+    return getBasicAuth(clientId, clientSecret)
+}
+
+/**
+ * Gets the specific parameters required for the POST request's body that asks
+ * for a new access token.
+ */
+private fun getNewRequestParameters(redirectUriResult: RedirectUriResult.Success): RequestBody {
+    val exchangeCode: String = redirectUriResult.code
+    val redirectUri: String = REDIRECT_URI
+    // Set the parameters Reddit requires in the POST request's body
+    val parameters = "grant_type=$GET_NEW_TOKEN&code=$exchangeCode&redirect_uri=$redirectUri"
+    // The parameters won't work if send as a plain string, they need to be converted.
+    return parameters.toRequestBody("text/plain".toMediaTypeOrNull())
+}
+
+/**
+ * Makes a POST request to Reddit asking for an access token. This function can be used both for
+ * requesting a new access token, or refreshing an old one, as the only thing different between them
+ * are the POST body [parameters]
+ * @param httpBasicAuth Needed for the "Authorization" header of the request. See [HttpBasicAuthFormatter].
+ * @param parameters See [getNewRequestParameters]
+ * @return An [AccessToken] if the response is successful, null otherwise.
+ */
+private suspend fun requestAccessToken(httpBasicAuth: String, parameters: RequestBody): AccessToken? {
+    println("Making a POST request to Reddit...")
+    val authorizationService = buildService(AuthorizationService::class.java, isUsingOauth = false)
+    val response: Response<AccessToken> = authorizationService.getAccessToken(httpBasicAuth, parameters)
+
+    // Send the request asynchronously
+    // Has to be inside a try block because the connection could fail.
+    try {
+        if (response.isSuccessful) {
+            println("Successful response")
+            return response.body()
+        } else {
+            println("Error during authorization request: ${response.code()}")
         }
-
-        val httpBasicAuth = getHttpBasicAuth()
-        val requestParameters = getNewRequestParameters(redirectUriResult)
-        val accessToken = requestAccessToken(httpBasicAuth, requestParameters)
-        checkNotNull(accessToken)
-        FileTokenManager.saveAccessTokenToFile(accessToken)
+    } catch (t: Throwable) {
+        println("Error during authorization request: ${t.message}")
     }
 
+    return null
+}
 
-    /** Needed for the "Authorization" header of the request. */
-    private fun getHttpBasicAuth(): String {
-        val clientId: String = RegisteredAppInformation.CLIENT_ID
-        val clientSecret: String = FileSecretReader.getClientSecret()
-        return HttpBasicAuthFormatter.getBasicAuth(clientId, clientSecret)
-    }
+suspend fun refreshAccessToken() {
+    println("Refreshing access token")
+    val refreshToken = getSavedToken().refreshToken
+    checkNotNull(refreshToken) {"No refresh token found"}
 
-    /**
-     * Gets the specific parameters required for the POST request's body that asks
-     * for a new access token.
-     */
-    private fun getNewRequestParameters(redirectUriResult: RedirectUriResult.Success): RequestBody {
-        val exchangeCode: String = redirectUriResult.code
-        val redirectUri: String = RegisteredAppInformation.REDIRECT_URI
-        // Set the parameters Reddit requires in the POST request's body
-        val parameters = "grant_type=$GET_NEW_TOKEN&code=$exchangeCode&redirect_uri=$redirectUri"
-        // The parameters won't work if send as a plain string, they need to be converted.
-        return parameters.toRequestBody("text/plain".toMediaTypeOrNull())
-    }
+    val httpBasicAuth = getHttpBasicAuth()
+    val parameters = "grant_type=$GET_REFRESHED_TOKEN&refresh_token=$refreshToken"
+        .toRequestBody("text/plain".toMediaTypeOrNull())
 
-    /**
-     * Makes a POST request to Reddit asking for an access token. This function can be used both for
-     * requesting a new access token, or refreshing an old one, as the only thing different between them
-     * are the POST body [parameters]
-     * @param httpBasicAuth Needed for the "Authorization" header of the request. See [HttpBasicAuthFormatter].
-     * @param parameters See [getNewRequestParameters]
-     * @return An [AccessToken] if the response is successful, null otherwise.
-     */
-    private suspend fun requestAccessToken(httpBasicAuth: String, parameters: RequestBody): AccessToken? {
-        Logger.log(TAG, "Making a POST request to Reddit...")
-        val authorizationService = ServiceBuilder.buildService(AuthorizationService::class.java, isUsingOauth = false)
-        val response: Response<AccessToken> = authorizationService.getAccessToken(httpBasicAuth, parameters)
+    val accessToken = requestAccessToken(httpBasicAuth, parameters)
+    checkNotNull(accessToken)
+    saveToken(accessToken)
+}
 
-        // Send the request asynchronously
-        // Has to be inside a try block because the connection could fail.
-        try {
-            if (response.isSuccessful) {
-                Logger.log(TAG, "Successful response")
-                return response.body()
-            } else {
-                Logger.log(TAG, "Error during authorization request: ${response.code()}")
-            }
-        } catch (t: Throwable) {
-            Logger.log(TAG, "Error during authorization request: ${t.message}")
-        }
-
-        return null
-    }
-
-
-    suspend fun refreshAccessToken() {
-        Logger.log(TAG, "Refreshing access token")
-        val refreshToken = getSavedToken().refreshToken
-        checkNotNull(refreshToken) { Logger.log(TAG, "No refresh token found") }
-
-        val httpBasicAuth = getHttpBasicAuth()
-        val parameters = "grant_type=$GET_REFRESHED_TOKEN&refresh_token=$refreshToken"
-            .toRequestBody("text/plain".toMediaTypeOrNull())
-
-        val accessToken = requestAccessToken(httpBasicAuth, parameters)
-        checkNotNull(accessToken)
-        FileTokenManager.saveAccessTokenToFile(accessToken)
-    }
-
-    /**
-     * Gets the current refresh token from a file on disk.
-     * @return The refresh token if it exists, null otherwise.
-     */
-    fun getSavedToken(): AccessToken {
-        return FileTokenManager.getAccessTokenFromFile()
-    }
+/**
+ * Gets the current refresh token from a file on disk.
+ * @return The refresh token if it exists, null otherwise.
+ */
+fun getSavedToken(): AccessToken {
+    return loadToken()
 }

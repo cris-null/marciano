@@ -1,7 +1,7 @@
-package data.net.api
+package net.api
 
-import data.net.model.Identity
-import data.net.model.TrophyResponse
+import net.model.Identity
+import net.model.TrophyResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
