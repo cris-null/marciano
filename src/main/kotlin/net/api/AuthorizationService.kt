@@ -1,5 +1,6 @@
 package net.api
 
+import net.genUserAgent
 import net.model.AccessToken
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -12,7 +13,6 @@ interface AuthorizationService {
 
     @Headers(
         "Content-Type: application/x-www-form-urlencoded",
-        "User-Agent: marciano Kotlin/1.4"
     )
     @POST("/api/v1/access_token")
     /**
@@ -52,7 +52,8 @@ interface AuthorizationService {
      * String(Base64.getEncoder().encode(myString.toByteArray()))
      */
     suspend fun getAccessToken(
+        @Header("User-Agent") userAgent: String = genUserAgent(),
         @Header("Authorization") httpBasicAuth: String,
-        @Body parameters: RequestBody
+        @Body parameters: RequestBody,
     ): Response<AccessToken>
 }
