@@ -51,7 +51,7 @@ interface AuthorizationService {
      *
      * String(Base64.getEncoder().encode(myString.toByteArray()))
      */
-    suspend fun getAccessToken(
+    suspend fun fetchAccessToken(
         @Header("Authorization") httpBasicAuth: String,
         @Body parameters: RequestBody,
         @Header("User-Agent") userAgent: String = genUserAgent(),

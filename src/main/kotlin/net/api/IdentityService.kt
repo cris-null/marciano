@@ -13,13 +13,13 @@ import retrofit2.http.Header
 interface IdentityService {
 
     @GET("/api/v1/me")
-    suspend fun getIdentity(
+    suspend fun fetchIdentity(
         @Header("Authorization") authorization: String,
         @Header("User-Agent") userAgent: String = genUserAgent(),
     ): Response<Identity>
 
     @GET("/api/v1/me/trophies")
-    suspend fun getTrophies(
+    suspend fun fetchTrophies(
         @Header("Authorization") authorization: String,
         @Header("User-Agent") userAgent: String = genUserAgent(),
     ): Response<TrophyResponse>
