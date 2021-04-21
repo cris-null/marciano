@@ -1,20 +1,14 @@
-import authorization.codeFlowAuthorization
+import authorization.checkAccessTokenExpiration
+import file.loadToken
 import kotlinx.coroutines.runBlocking
+import net.helper.fetchHotPics
+import java.io.File
 
 fun main() = runBlocking {
-//    checkAccessTokenExpiration(1800)
+    checkAccessTokenExpiration(1800)
+}
 
-    codeFlowAuthorization()
-
-    // ==============================================
-    // GETTING TROPHIES TEST
-    // ==============================================
-
-//    val accessToken: String = loadToken().accessToken
-//    val authorizationParameter = "Bearer $accessToken"
-//    val response = getTrophies(authorizationParameter)
-//    if (response.isSuccessful) {
-//        val trophies = response.body()
-//        println(trophies)
-//    }
+suspend fun getAuthParam(): String {
+    val accessToken = loadToken().accessToken
+    return "Bearer $accessToken"
 }
