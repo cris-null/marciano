@@ -35,7 +35,7 @@ object ListingSerializer : KSerializer<Listing> {
         val before = data.jsonObject["before"]!!.jsonPrimitive.contentOrNull
 
         val thingJsonArray = data.jsonObject["children"]!!.jsonArray
-        val things = configuredJson.decodeFromJsonElement(ThingSerializer, thingJsonArray)
+        val things = configuredJson.decodeFromJsonElement(PolymorphicThingUnwrapper, thingJsonArray)
 
         return Listing(after, before, things)
     }
