@@ -146,8 +146,136 @@ data class Link(
     override val created: Long,
     override val name: String,
 
+    /** The account name of the poster. Null if this is a promotional link. */
+    val author: String,
 
-    ) : Thing(), Votable, Created
+    /** The CSS class of the author's flair. Subreddit specific. */
+    @SerialName("author_flair_css_class")
+    val authorFlairCssClass: String?,
+
+    /** The text of the author's flair. Subreddit specific */
+    @SerialName("author_flair_text")
+    val authorFlairText: String?,
+
+    /** The domain of this link. Self posts will be `self.<subreddit>` while
+     * other examples include `en.wikipedia.org` and `s3.amazon.com`.
+     */
+    val domain: String,
+
+    /** True if the post is hidden by the logged in user. False if not logged in
+     * or no hidden.
+     */
+    @SerialName("hidden")
+    val isHidden: Boolean,
+
+    @SerialName("is_self")
+    val isSelfPost: Boolean,
+
+    @SerialName("link_flair_css_class")
+    val linkFlairCssClass: String?,
+
+    @SerialName("link_flair_text")
+    val linkFlairText: String?,
+
+    @SerialName("locked")
+    val isLocked: Boolean,
+
+    /** The number of comments that belong to this link.
+     * Includes removed comments.
+     */
+    @SerialName("num_comments")
+    val commentCount: Int,
+
+    @SerialName("over_18")
+    val isNsfw: Boolean,
+
+    /** Relative URL of the permanent link for this link. */
+    val permalink: String,
+
+    @SerialName("saved")
+    val isSaved: Boolean,
+
+    /**
+     * The net-score of the link.
+     *
+     * A submission's score is simply the number of upvotes minus the number of downvotes.
+     * If five users like the submission and three users don't it will have a score of 2.
+     *
+     * Please note that the vote numbers are not "real" numbers, they have been "fuzzed" to prevent spam bots etc.
+     *
+     * So taking the above example, if five users upvoted the submission, and three users downvote it,
+     * the upvote/downvote numbers may say 23 upvotes and 21 downvotes, or 12 upvotes, and 10 downvotes.
+     *
+     * The points score is correct, but the vote totals are "fuzzed".
+     */
+    val score: Int,
+
+    /**
+     * The raw text.
+     *
+     * This is the unformatted text which includes the raw markup characters such
+     * as ** for bold. <, >, and & are escaped.
+     *
+     * Empty if not present.
+     */
+    val selftext: String,
+
+    /**
+     * The formatted escaped HTML text.
+     *
+     * This is the HTML formatted version of the marked up text.
+     * Items that are boldened by ** or *** will now have <em> or *** tags on them.
+     *
+     * Additionally, bullets and numbered lists will now be in HTML list format.
+     *
+     * NOTE: The HTML string will be escaped. You must unescape to get the raw HTML.
+     *
+     * Null if not present.
+     */
+    @SerialName("selftext_html")
+    val selftextHtml: String?,
+
+    /** Subreddit of the thing excluding the /r/ prefix, e.g., "pics" */
+    val subreddit: String,
+
+    /** The ID of the subreddit in which the thing is located */
+    @SerialName("subreddit_id")
+    val subredditId: String,
+
+    /** The Full URL to the thumbnail for this link.
+     *
+     * "self" if this is a self post.
+     *
+     * "image" if this is a link to an image but has no thumbnail.
+     *
+     * "default" if a thumbnail is not available.
+     */
+    val thumbnail: String,
+
+
+    /** The title of the link. May contain newlines for some reason. */
+    val title: String,
+
+    /** The link of this post. The Permalink if this is a self post. */
+    val url: String,
+
+    /**
+     * To allow determining whether they have been distinguished by moderators/admins.
+     *
+     * null = not distinguished.
+     *
+     * moderator = the green [M].
+     *
+     * admin = the red [A].
+     *
+     * special = various other special distinguishes http://redd.it/19ak1b
+     */
+    val distinguished: String?,
+
+    @SerialName("stickied")
+    val isStickied: Boolean
+
+) : Thing(), Votable, Created
 
 
 /**
