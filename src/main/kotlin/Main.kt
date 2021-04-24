@@ -12,5 +12,5 @@ suspend fun getAuthParam(): String {
 fun main() {
     val listingResponse = File("response.json").readText()
     val decoded = configuredJson.decodeFromString<Listing>(listingResponse)
-    decoded.things.forEach { println(it) }
+    decoded.things.forEach { println("\n\n\n$it\n\n\n") }
 }

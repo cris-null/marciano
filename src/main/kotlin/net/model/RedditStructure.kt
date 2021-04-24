@@ -31,11 +31,6 @@ interface Created {
      * have a double, so maybe Long is fine? Todo: test if it's fine to use Long instead of Double.
      */
     val created: Long
-
-    /**
-     * The time of creation in UTC epoch-second format. Note that neither of these ever have a non-zero fraction.
-     */
-    val createdUtc: Long
 }
 
 @Serializable
@@ -55,10 +50,92 @@ data class Comment(
     override val downs: Int,
     override val likes: Boolean?,
     override val created: Long,
-    override val createdUtc: Long,
 
+    /** Who approved this comment. null if nobody or you are not a mod */
+    @SerialName("approved_by")
+    val approvedBy: String?,
 
-    ) : Thing(), Votable, Created
+    /** The account name of the poster */
+    val author: String,
+
+    /** The CSS class of the author's flair. subreddit specific */
+    @SerialName("author_flair_css_class")
+    val authorFlairCssClass: String?,
+
+    /** The text of the author's flair. subreddit specific */
+    @SerialName("author_flair_text")
+    val authorFlairText: String?,
+
+    /** Who removed this comment. Null if nobody or you are not a mod */
+    @SerialName("banned_by")
+    val bannedBy: String?,
+
+    /**
+     * The raw text.
+     *
+     * This is the unformatted text which includes the raw markup characters such as ** for bold.
+     *
+     * <, >, and & are escaped. */
+    val body: String,
+
+    /**
+     * The formatted HTML text as displayed on reddit.
+     *
+     * For example, text that is emphasised by * will now have <em> tags wrapping it.
+     * Additionally, bullets and numbered lists will now be in HTML list format.
+     *
+     * NOTE: The HTML string will be escaped. You must unescape to get the raw HTML.
+     */
+    @SerialName("body_html")
+    val bodyHtml: String,
+
+    /** The number of times this comment received reddit gold */
+    @SerialName("gilded")
+    val gildedCount: Int,
+
+    /** ID of the link this comment is in */
+    @SerialName("link_id")
+    val linkId: String,
+
+    /** How many times this comment has been reported, null if not a mod */
+    @SerialName("num_reports")
+    val reportCount: Int?,
+
+    /** ID of the thing this comment is a reply to, either the link or a comment in it */
+    @SerialName("parent_id")
+    val parentId: String,
+
+    /** True if this post is saved by the logged in user */
+    val saved: Boolean,
+
+    /** The net-score of the comment */
+    val score: Int,
+
+    /** Whether the comment's score is currently hidden */
+    @SerialName("score_hidden")
+    val isScoreHidden: Boolean,
+
+    /** Subreddit of the thing excluding the /r/ prefix. "pics" */
+    val subreddit: String,
+
+    /** The ID of the subreddit in which the thing is located */
+    @SerialName("subreddit_id")
+    val subredditId: String,
+
+    /**
+     * To allow determining whether they have been distinguished by moderators/admins.
+     *
+     * null = not distinguished.
+     *
+     * moderator = the green [M].
+     *
+     * admin = the red [A].
+     *
+     * special = various other special distinguishes http://redd.it/19ak1b
+     */
+    val distinguished: String?
+
+) : Thing(), Votable, Created
 
 @Serializable
 data class Link(
@@ -67,7 +144,6 @@ data class Link(
     override val downs: Int,
     override val likes: Boolean?,
     override val created: Long,
-    override val createdUtc: Long,
     override val name: String,
 
 
