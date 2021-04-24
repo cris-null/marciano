@@ -1,12 +1,12 @@
 package net.model
 
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.*
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
+import net.configuredJson
 
 /**
  * Used to paginate content that is too long to display in one go.
@@ -18,8 +18,7 @@ import kotlinx.serialization.json.*
 data class Listing(
     val after: String?,
     val before: String?,
-    @Serializable(with = PolymorphicThingUnwrapper::class)
-    val things: List<Thing>?
+    val things: List<Thing>
 )
 
 object ListingSerializer: KSerializer<Listing> {
@@ -32,19 +31,10 @@ object ListingSerializer: KSerializer<Listing> {
         val after = data.jsonObject["after"]!!.jsonPrimitive.contentOrNull
         val before = data.jsonObject["before"]!!.jsonPrimitive.contentOrNull
 
-        val things = mutableListOf<Thing>()
         val thingJsonArray = data.jsonObject["children"]!!.jsonArray
+        val things = configuredJson.decodeFromJsonElement(ThingSerializer, thingJsonArray)
 
-
-//        thingJsonArray.forEach { element ->
-//
-//            val kind = element.jsonObject["kind"]!!
-//
-//        }
-
-
-
-        return Listing(after, before ,null)
+        return Listing(after, before, things)
     }
 
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Listing") {
