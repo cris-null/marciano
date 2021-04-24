@@ -2,7 +2,10 @@ package net.model
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.descriptors.element
+import kotlinx.serialization.descriptors.listSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
@@ -21,7 +24,7 @@ data class Listing(
     val things: List<Thing>
 )
 
-object ListingSerializer: KSerializer<Listing> {
+object ListingSerializer : KSerializer<Listing> {
 
     override fun deserialize(decoder: Decoder): Listing {
         require(decoder is JsonDecoder)
