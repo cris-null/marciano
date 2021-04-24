@@ -47,8 +47,9 @@ object ListingSerializer : KSerializer<Listing> {
     }
 
     override fun serialize(encoder: Encoder, value: Listing) {
-        require(encoder is JsonEncoder)
-        encoder.encodeJsonElement(JsonObject(mapOf("after" to JsonPrimitive(value.after))))
+        throw NotImplementedError()
+//        require(encoder is JsonEncoder)
+//        encoder.encodeJsonElement(JsonObject(mapOf("after" to JsonPrimitive(value.after))))
     }
 
 }
