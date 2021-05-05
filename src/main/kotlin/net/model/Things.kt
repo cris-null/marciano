@@ -21,7 +21,7 @@ data class Comment(
     override val ups: Int,
     override val downs: Int,
     override val likes: Boolean?,
-    override val created: Long,
+    override val created: Double,
 
     /** Who approved this comment. null if nobody or you are not a mod */
     @SerialName("approved_by")
@@ -115,7 +115,7 @@ data class Link(
     override val ups: Int,
     override val downs: Int,
     override val likes: Boolean?,
-    override val created: Long,
+    override val created: Double,
     override val name: String,
 
     /** The account name of the poster. Null if this is a promotional link. */

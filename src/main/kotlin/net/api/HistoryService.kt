@@ -1,6 +1,7 @@
 package net.api
 
 import net.genUserAgent
+import net.model.Listing
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.GET
@@ -14,5 +15,5 @@ interface HistoryService {
         @Header("Authorization") authorization: String,
         @Path("username") username: String,
         @Header("User-Agent") userAgent: String = genUserAgent(),
-    ): Response<ResponseBody>
+    ): Response<Listing>
 }
