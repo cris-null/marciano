@@ -1,23 +1,21 @@
 import authorization.checkAccessTokenExpiration
-import authorization.codeFlowAuthorization
 import file.loadToken
 import kotlinx.coroutines.runBlocking
-import net.helper.getTrophies
+import kotlinx.serialization.decodeFromString
+import net.configuredJson
+import net.helper.getSaved
+import net.model.Link
+import net.model.Listing
+import java.io.File
 
-fun main() = runBlocking {
+suspend fun getAuthParam(): String {
+    val accessToken = loadToken().accessToken
+    return "Bearer $accessToken"
+}
+
+fun main(): Unit = runBlocking {
     checkAccessTokenExpiration(1800)
-
-
-
-    // ==============================================
-    // GETTING TROPHIES TEST
-    // ==============================================
-
-    val accessToken: String = loadToken().accessToken
-    val authorizationParameter = "Bearer $accessToken"
-    val response = getTrophies(authorizationParameter)
-    if (response.isSuccessful) {
-        val trophies = response.body()
-        println(trophies)
-    }
+    val savedPosts = getSaved(getAuthParam(), "cris_null")
+    val listing = savedPosts.body()
+    listing?.things?.forEach { println(it) }
 }

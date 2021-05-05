@@ -66,7 +66,7 @@ private fun getNewRequestParameters(redirectUriResult: RedirectUriResult.Success
 private suspend fun requestAccessToken(httpBasicAuth: String, parameters: RequestBody): AccessToken? {
     println("Making a POST request to Reddit...")
     val authorizationService = buildService(AuthorizationService::class.java, isUsingOauth = false)
-    val response: Response<AccessToken> = authorizationService.getAccessToken(httpBasicAuth, parameters)
+    val response: Response<AccessToken> = authorizationService.fetchAccessToken(httpBasicAuth, parameters)
 
     // Send the request asynchronously
     // Has to be inside a try block because the connection could fail.

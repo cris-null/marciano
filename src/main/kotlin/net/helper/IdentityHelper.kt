@@ -10,5 +10,5 @@ private val identity: IdentityService by lazy {
     buildService(IdentityService::class.java, isUsingOauth = true)
 }
 
-suspend fun getIdentity(authorization: String): Response<Identity> = identity.getIdentity(authorization)
-suspend fun getTrophies(authorization: String): Response<TrophyResponse> = identity.getTrophies(authorization)
+suspend fun fetchIdentity(authorization: String): Response<Identity> = identity.fetchIdentity(authorization)
+suspend fun fetchTrophies(authorization: String): Response<TrophyResponse> = identity.fetchTrophies(authorization)
