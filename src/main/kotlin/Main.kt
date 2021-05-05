@@ -2,30 +2,50 @@ import authorization.checkAccessTokenExpiration
 import file.loadToken
 import kotlinx.coroutines.runBlocking
 import net.helper.fetchSaved
+import net.model.Comment
+import net.model.Link
 import net.model.Listing
+import net.model.Post
 
 suspend fun getAuthParam(): String {
     val accessToken = loadToken().accessToken
     return "Bearer $accessToken"
 }
 
-fun main(): Unit = runBlocking {
-    checkAccessTokenExpiration(1800)
+suspend fun printAllSavedPosts() {
     val savedPosts = fetchSaved(getAuthParam(), "cris_null")
     val listing = savedPosts.body()
 
+    val listings = mutableListOf<Listing>()
+    listing?.collectAll(listing, listings)
 
-    println(listing?.let { listingWalk(it) })
+    val posts = mutableListOf<Post>()
+    listings.forEach {
+        it.posts.forEach { post ->
+            posts.add(post)
+        }
+    }
+
+    println(posts.size)
+    posts.forEach {
+        if (it is Comment) {
+            println("""
+                
+                ==== COMMENT ====
+                
+            """.trimIndent())
+            println(it.body)
+        } else if (it is Link) {
+            println("""
+                
+                ==== LINK ====
+                
+            """.trimIndent())
+            println(it.title)
+        }
+    }
 }
 
-var count = 0
-
-suspend fun listingWalk(listing: Listing, list: MutableList<Listing>) {
-
-    return if (listing.next == null) {
-    } else {
-        list.add(listing)
-        val nextListing = fetchSaved(getAuthParam(), "cris_null", listing.next)
-        listingWalk(nextListing.body()!!, list)
-    }
+fun main(): Unit = runBlocking {
+    checkAccessTokenExpiration(1800)
 }

@@ -6,7 +6,7 @@ import kotlinx.serialization.json.*
 
 
 @Serializable
-sealed class Thing {
+sealed class Post {
     /** This item's identifier, e.g. "8xwlg" */
     abstract val id: String
 
@@ -107,7 +107,7 @@ data class Comment(
      */
     val distinguished: String?
 
-) : Thing(), Votable, Created
+) : Post(), Votable, Created
 
 @Serializable
 data class Link(
@@ -247,6 +247,6 @@ data class Link(
     @SerialName("stickied")
     val isStickied: Boolean
 
-) : Thing(), Votable, Created
+) : Post(), Votable, Created
 
 

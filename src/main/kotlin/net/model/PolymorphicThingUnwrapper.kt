@@ -4,12 +4,12 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.*
 
 /**
- * A listing response contains many [Thing], which can be [Comment] or [Link]. This object takes a [JsonArray]
- * of [Thing] and returns a [List] of [Thing], properly classified into [Comment] or [Link].
+ * A listing response contains many [Post], which can be [Comment] or [Link]. This object takes a [JsonArray]
+ * of [Post] and returns a [List] of [Post], properly classified into [Comment] or [Link].
  */
-object PolymorphicThingUnwrapper : JsonTransformingSerializer<List<Thing>>(ListSerializer(Thing.serializer())) {
+object PolymorphicThingUnwrapper : JsonTransformingSerializer<List<Post>>(ListSerializer(Post.serializer())) {
 
-    /** @param element A [JsonArray] of [Thing] */
+    /** @param element A [JsonArray] of [Post] */
     override fun transformDeserialize(element: JsonElement): JsonElement {
         require(element is JsonArray)
         val thingArray = element.jsonArray
