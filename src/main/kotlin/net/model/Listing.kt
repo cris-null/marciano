@@ -1,6 +1,8 @@
 package net.model
 
+import getAuthParam
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
@@ -10,6 +12,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 import net.configuredJson
+import net.helper.fetchSaved
 
 /**
  * Used to paginate content that is too long to display in one go.
@@ -19,10 +22,18 @@ import net.configuredJson
  */
 @Serializable(with = ListingSerializer::class)
 data class Listing(
-    val after: String?,
+    @SerialName("after")
+    val next: String?,
     val before: String?,
     val things: List<Thing>
-)
+) {
+    suspend fun next(): Listing? {
+        return if (next == null)
+            return null
+        else
+            fetchSaved(getAuthParam(), "cris_null", next).body()
+    }
+}
 
 object ListingSerializer : KSerializer<Listing> {
 
@@ -41,7 +52,7 @@ object ListingSerializer : KSerializer<Listing> {
     }
 
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("Listing") {
-        element<String>("after")
+        element<String>("next")
         element<String>("before")
         element("things", listSerialDescriptor<Thing>())
     }
