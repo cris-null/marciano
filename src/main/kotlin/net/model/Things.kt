@@ -245,8 +245,11 @@ data class Link(
     val distinguished: String?,
 
     @SerialName("stickied")
-    val isStickied: Boolean
+    val isStickied: Boolean,
+
+    @SerialName("secure_media")
+    @Serializable(with = LinkMediaSerializer::class)
+    val media: LinkMedia?
 
 ) : Post(), Votable, Created
-
 

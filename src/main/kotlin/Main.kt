@@ -1,11 +1,14 @@
 import authorization.checkAccessTokenExpiration
 import file.loadToken
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.decodeFromString
+import net.configuredJson
 import net.helper.fetchSaved
 import net.model.Comment
 import net.model.Link
 import net.model.Listing
 import net.model.Post
+import java.io.File
 
 suspend fun getAuthParam(): String {
     val accessToken = loadToken().accessToken
@@ -48,4 +51,14 @@ suspend fun printAllSavedPosts() {
 
 fun main(): Unit = runBlocking {
     checkAccessTokenExpiration(1800)
+
+    val response = fetchSaved(getAuthParam(), "cris_null")
+    val listing = response.body()
+//    val response = File("response.json").readText()
+//    val listing = configuredJson.decodeFromString<Listing>(response)
+
+    listing?.posts?.forEach {
+        if (it is Link)
+            println(it.media)
+    }
 }
